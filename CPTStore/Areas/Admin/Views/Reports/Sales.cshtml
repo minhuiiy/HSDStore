@@ -1,0 +1,211 @@
+@model CPTStore.Areas.Admin.ViewModels.SalesReportViewModel
+@{
+    ViewData["Title"] = "Báo cáo doanh thu";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Báo cáo doanh thu</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lọc theo thời gian</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Sales" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="startDate" class="form-label">Từ ngày</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-4">
+                    <label for="endDate" class="form-label">Đến ngày</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-filter"></i> Lọc
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng đơn hàng</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalOrders</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-cart-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Tổng doanh thu</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalRevenue.ToString("#,##0") đ</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-currency-dollar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Giá trị trung bình mỗi đơn</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.AverageOrderValue.ToString("#,##0") đ</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-calculator fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Biểu đồ doanh thu</h6>
+        </div>
+        <div class="card-body">
+            <div class="chart-area">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Chi tiết doanh thu theo ngày</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Ngày</th>
+                            <th>Số đơn hàng</th>
+                            <th>Doanh thu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.DailySales.OrderByDescending(d => d.Date))
+                        {
+                            <tr>
+                                <td>@item.Date.ToString("dd/MM/yyyy")</td>
+                                <td>@item.OrderCount</td>
+                                <td>@item.Revenue.ToString("#,##0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var ctx = document.getElementById('salesChart').getContext('2d');
+            var salesData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.DailySales));
+            
+            var labels = salesData.map(function(item) {
+                var date = new Date(item.date);
+                return date.toLocaleDateString('vi-VN');
+            });
+            
+            var revenues = salesData.map(function(item) {
+                return item.revenue;
+            });
+            
+            var orderCounts = salesData.map(function(item) {
+                return item.orderCount;
+            });
+            
+            var salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Doanh thu (đ)',
+                            data: revenues,
+                            backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                            borderColor: 'rgba(78, 115, 223, 1)',
+                            pointRadius: 3,
+                            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                            pointBorderColor: 'rgba(78, 115, 223, 1)',
+                            pointHoverRadius: 5,
+                            pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                            pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                            pointHitRadius: 10,
+                            pointBorderWidth: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Số đơn hàng',
+                            data: orderCounts,
+                            backgroundColor: 'rgba(28, 200, 138, 0.05)',
+                            borderColor: 'rgba(28, 200, 138, 1)',
+                            pointRadius: 3,
+                            pointBackgroundColor: 'rgba(28, 200, 138, 1)',
+                            pointBorderColor: 'rgba(28, 200, 138, 1)',
+                            pointHoverRadius: 5,
+                            pointHoverBackgroundColor: 'rgba(28, 200, 138, 1)',
+                            pointHoverBorderColor: 'rgba(28, 200, 138, 1)',
+                            pointHitRadius: 10,
+                            pointBorderWidth: 2,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Doanh thu (đ)'
+                            }
+                        },
+                        y1: {
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Số đơn hàng'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

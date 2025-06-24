@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Danh mục sản phẩm</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .product-card { border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+        .product-name { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .product-category { color: #666; margin-bottom: 10px; }
+        .product-price { font-weight: bold; color: #e44d26; margin-bottom: 10px; }
+        .product-description { margin-bottom: 10px; }
+        .footer { margin-top: 50px; text-align: center; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class='header'>
+        <div class='title'>DANH MỤC SẢN PHẨM</div>
+        <div>CPT Store</div>
+        <div>Ngày tạo: {{CurrentDate}}</div>
+    </div>
+
+    <!-- Products -->
+    <div class='product-grid'>
+        {{ProductItems}}
+    </div>
+
+    <!-- Footer -->
+    <div class='footer'>
+        <p>CPT Store - Địa chỉ: 123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh</p>
+        <p>Điện thoại: 1900 1234 - Email: info@cptstore.com</p>
+        <p>© {{CurrentYear}} CPT Store. Tất cả các quyền được bảo lưu.</p>
+    </div>
+
+</body>
+</html>

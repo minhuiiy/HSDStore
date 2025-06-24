@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Phiếu giao hàng</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .shipping-label { width: 400px; height: 600px; border: 2px solid #000; padding: 20px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .title { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        .barcode { text-align: center; margin: 20px 0; }
+        .barcode img { max-width: 100%; height: auto; }
+        .section { margin-bottom: 15px; }
+        .section-title { font-weight: bold; margin-bottom: 5px; }
+        .divider { border-top: 1px dashed #000; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <div class='shipping-label'>
+        
+        <!-- Header -->
+        <div class='header'>
+            <div class='title'>PHIẾU GIAO HÀNG</div>
+            <div>CPT Store</div>
+        </div>
+
+        <!-- Barcode (simulated) -->
+        <div class='barcode'>
+            <div>[Mã vạch: {{OrderNumber}}]</div>
+        </div>
+
+        <!-- Order Info -->
+        <div class='section'>
+            <div class='section-title'>Thông tin đơn hàng:</div>
+            <div>Mã đơn hàng: {{OrderNumber}}</div>
+            <div>Ngày đặt hàng: {{OrderDate}}</div>
+        </div>
+
+        <div class='divider'></div>
+
+        <!-- Sender Info -->
+        <div class='section'>
+            <div class='section-title'>Người gửi:</div>
+            <div>CPT Store</div>
+            <div>123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh</div>
+            <div>Điện thoại: 1900 1234</div>
+        </div>
+
+        <div class='divider'></div>
+
+        <!-- Recipient Info -->
+        <div class='section'>
+            <div class='section-title'>Người nhận:</div>
+            <div>{{CustomerName}}</div>
+            <div>{{CustomerAddress}}</div>
+            <div>Điện thoại: {{CustomerPhone}}</div>
+        </div>
+
+        <div class='divider'></div>
+
+        <!-- Package Info -->
+        <div class='section'>
+            <div class='section-title'>Thông tin kiện hàng:</div>
+            <div>Số lượng sản phẩm: {{ItemCount}}</div>
+            <div>Phương thức thanh toán: {{PaymentMethodText}}</div>
+            {{CODSection}}
+        </div>
+
+        <!-- Footer -->
+        <div class='section' style='margin-top: 30px; text-align: center;'>
+            <div>Ngày in: {{CurrentDateTime}}</div>
+        </div>
+
+    </div>
+</body>
+</html>

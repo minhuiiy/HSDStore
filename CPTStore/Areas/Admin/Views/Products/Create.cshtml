@@ -1,0 +1,164 @@
+@model CPTStore.Models.Product
+@{
+    ViewData["Title"] = "Thêm sản phẩm mới";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Thêm sản phẩm mới</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin sản phẩm</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Tên sản phẩm</label>
+                            <input asp-for="Name" class="form-control" required />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SKU" class="form-label">Mã SKU</label>
+                            <input asp-for="SKU" class="form-control" required />
+                            <span asp-validation-for="SKU" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Mô tả</label>
+                            <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ShortDescription" class="form-label">Mô tả ngắn</label>
+                            <textarea asp-for="ShortDescription" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="imageFile" class="form-label">Hình ảnh sản phẩm</label>
+                            <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/*" />
+                            <div class="mt-2">
+                                <img id="imagePreview" src="" alt="Preview" class="img-thumbnail d-none" style="max-height: 200px;" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CategoryId" class="form-label">Danh mục</label>
+                            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories" required>
+                                <option value="">-- Chọn danh mục --</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Price" class="form-label">Giá bán (VNĐ)</label>
+                            <input asp-for="Price" class="form-control currency-input" required />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="OriginalPrice" class="form-label">Giá gốc (VNĐ)</label>
+                            <input asp-for="OriginalPrice" class="form-control currency-input" />
+                            <span asp-validation-for="OriginalPrice" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Discount" class="form-label">Giảm giá (%)</label>
+                            <input asp-for="Discount" class="form-control" type="number" min="0" max="100" />
+                            <span asp-validation-for="Discount" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Stock" class="form-label">Số lượng tồn kho</label>
+                            <input asp-for="Stock" class="form-control" type="number" min="0" required />
+                            <span asp-validation-for="Stock" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input asp-for="IsAvailable" class="form-check-input" />
+                            <label asp-for="IsAvailable" class="form-check-label">Có sẵn để bán</label>
+                            <span asp-validation-for="IsAvailable" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Lưu sản phẩm
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            // Xem trước hình ảnh khi chọn file
+            $("#imageFile").change(function () {
+                readURL(this);
+            });
+
+            function readURL(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#imagePreview').attr('src', e.target.result);
+                        $('#imagePreview').removeClass('d-none');
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            // Định dạng tiền tệ
+            $(".currency-input").on("input", function() {
+                formatCurrency($(this));
+            });
+
+            $(".currency-input").each(function() {
+                formatCurrency($(this));
+            });
+
+            function formatCurrency(input) {
+                // Lấy giá trị không có dấu phân cách
+                var value = input.val().replace(/[^0-9]/g, '');
+                
+                // Định dạng với dấu phân cách hàng nghìn
+                if (value !== "") {
+                    value = parseInt(value, 10).toLocaleString('vi-VN');
+                }
+                
+                input.val(value);
+            }
+
+            // Chuyển đổi giá trị tiền tệ về số trước khi submit
+            $("form").submit(function() {
+                $(".currency-input").each(function() {
+                    var numericValue = $(this).val().replace(/[^0-9]/g, '');
+                    $(this).val(numericValue);
+                });
+                return true;
+            });
+        });
+    </script>
+}

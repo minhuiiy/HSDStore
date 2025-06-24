@@ -1,0 +1,57 @@
+@model List<CPTStore.Models.CartItem>
+@using CPTStore.Extensions
+
+<div class="table-responsive">
+    <table class="table table-borderless">
+        <tbody>
+            @if (Model != null)
+            {
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td class="text-start">
+                        <div class="d-flex align-items-center">
+                            @if (!string.IsNullOrEmpty(item.GetImageUrl()))
+                            {
+                                <img src="@item.GetImageUrl()" alt="@item.GetProductName()" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <img src="/images/no-image.png" alt="No Image" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                            }
+                            <div>
+                                <span>@item.GetProductName()</span>
+                                <small class="d-block text-muted">@item.Quantity x @item.GetPrice().ToString("N0") VNĐ</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-end">
+                        @(item.GetTotalPrice().ToString("N0")) VNĐ
+                    </td>
+                    @if (ViewBag.ShowControls == true)
+                    {
+                        <td class="text-end" style="width: 120px;">
+                            <div class="d-flex justify-content-end">
+                                <form asp-controller="Cart" asp-action="UpdateQuantity" method="post" class="d-inline-flex me-2">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <div class="input-group input-group-sm" style="width: 80px;">
+                                        <button type="submit" name="decrease" value="true" class="btn btn-outline-secondary">-</button>
+                                        <input type="text" name="quantity" value="@item.Quantity" class="form-control text-center" readonly>
+                                        <button type="submit" class="btn btn-outline-secondary">+</button>
+                                    </div>
+                                </form>
+                                <form asp-controller="Cart" asp-action="RemoveItem" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    }
+                </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

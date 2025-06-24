@@ -1,0 +1,15 @@
+@model CPTStore.Areas.Admin.ViewModels.OrderEditViewModel
+@using CPTStore.Models
+
+<div class="row mb-3">
+    <label class="col-md-3 col-form-label">Trạng thái đơn hàng:</label>
+    <div class="col-md-9">
+        <select asp-for="Order.Status" class="form-select">
+            <option value="@OrderStatus.Pending">Chờ xác nhận</option>
+            <option value="@OrderStatus.Processing">Đang xử lý</option>
+            <option value="@OrderStatus.Shipped">Đang giao hàng</option>
+            <option value="@OrderStatus.Delivered">Đã giao hàng</option>
+            <option value="@OrderStatus.Cancelled">Đã hủy</option>
+        </select>
+    </div>
+</div>

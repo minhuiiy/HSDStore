@@ -1,0 +1,198 @@
+@model CPTStore.Areas.Admin.Controllers.SettingsViewModel
+@{
+    ViewData["Title"] = "Cài đặt hệ thống";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Cài đặt hệ thống</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">Cài đặt chung</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="email-tab" data-bs-toggle="tab" data-bs-target="#email" type="button" role="tab" aria-controls="email" aria-selected="false">Cài đặt email</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="backup-tab" data-bs-toggle="tab" data-bs-target="#backup" type="button" role="tab" aria-controls="backup" aria-selected="false">Sao lưu & Khôi phục</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="settingsTabsContent">
+                        <!-- Cài đặt chung -->
+                        <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                            <form asp-action="SaveGeneral" method="post">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="StoreName" class="form-label">Tên cửa hàng</label>
+                                            <input asp-for="StoreName" class="form-control" />
+                                            <span asp-validation-for="StoreName" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="StoreEmail" class="form-label">Email cửa hàng</label>
+                                            <input asp-for="StoreEmail" class="form-control" type="email" />
+                                            <span asp-validation-for="StoreEmail" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="StorePhone" class="form-label">Số điện thoại</label>
+                                            <input asp-for="StorePhone" class="form-control" />
+                                            <span asp-validation-for="StorePhone" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="StoreAddress" class="form-label">Địa chỉ</label>
+                                            <input asp-for="StoreAddress" class="form-control" />
+                                            <span asp-validation-for="StoreAddress" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label asp-for="CurrencySymbol" class="form-label">Ký hiệu tiền tệ</label>
+                                            <input asp-for="CurrencySymbol" class="form-control" />
+                                            <span asp-validation-for="CurrencySymbol" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label asp-for="DefaultPageSize" class="form-label">Số sản phẩm mỗi trang</label>
+                                            <input asp-for="DefaultPageSize" class="form-control" type="number" min="1" />
+                                            <span asp-validation-for="DefaultPageSize" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <div class="form-check mb-3">
+                                            <input asp-for="EnableReviews" class="form-check-input" type="checkbox" />
+                                            <label asp-for="EnableReviews" class="form-check-label">Cho phép đánh giá sản phẩm</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mb-3">
+                                            <input asp-for="EnableWishlist" class="form-check-input" type="checkbox" />
+                                            <label asp-for="EnableWishlist" class="form-check-label">Cho phép danh sách yêu thích</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check mb-3">
+                                            <input asp-for="EnableCompare" class="form-check-input" type="checkbox" />
+                                            <label asp-for="EnableCompare" class="form-check-label">Cho phép so sánh sản phẩm</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Cài đặt email -->
+                        <div class="tab-pane fade" id="email" role="tabpanel" aria-labelledby="email-tab">
+                            <form asp-action="SaveEmail" method="post">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="SmtpServer" class="form-label">Máy chủ SMTP</label>
+                                            <input asp-for="SmtpServer" class="form-control" />
+                                            <span asp-validation-for="SmtpServer" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="SmtpPort" class="form-label">Cổng SMTP</label>
+                                            <input asp-for="SmtpPort" class="form-control" type="number" />
+                                            <span asp-validation-for="SmtpPort" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="SmtpUsername" class="form-label">Tên đăng nhập SMTP</label>
+                                            <input asp-for="SmtpUsername" class="form-control" />
+                                            <span asp-validation-for="SmtpUsername" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="SmtpPassword" class="form-label">Mật khẩu SMTP</label>
+                                            <input asp-for="SmtpPassword" class="form-control" type="password" />
+                                            <span asp-validation-for="SmtpPassword" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-3">
+                                            <input asp-for="SmtpEnableSsl" class="form-check-input" type="checkbox" />
+                                            <label asp-for="SmtpEnableSsl" class="form-check-label">Sử dụng SSL</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Sao lưu & Khôi phục -->
+                        <div class="tab-pane fade" id="backup" role="tabpanel" aria-labelledby="backup-tab">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card mb-4">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">Sao lưu dữ liệu</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <p>Tạo bản sao lưu dữ liệu của cửa hàng.</p>
+                                            <form asp-action="CreateBackup" method="post">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="bi bi-download"></i> Tạo bản sao lưu
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card mb-4">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">Khôi phục dữ liệu</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <p>Khôi phục dữ liệu từ bản sao lưu.</p>
+                                            <a asp-action="Restore" class="btn btn-warning">
+                                                <i class="bi bi-upload"></i> Khôi phục dữ liệu
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

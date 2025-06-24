@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CPTStore Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/admin.css" />
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-dark text-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-primary text-white py-3">CPTStore Admin</div>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-speedometer2 me-2"></i> Tổng quan
+                </a>
+                <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")" asp-area="Admin" asp-controller="Products" asp-action="Index">
+                    <i class="bi bi-box-seam me-2"></i> Sản phẩm
+                </a>
+                <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Categories" ? "active" : "")" asp-area="Admin" asp-controller="Categories" asp-action="Index">
+                    <i class="bi bi-grid me-2"></i> Danh mục
+                </a>
+                <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Orders" ? "active" : "")" asp-area="Admin" asp-controller="Orders" asp-action="Index">
+                    <i class="bi bi-cart-check me-2"></i> Đơn hàng
+                </a>
+                <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")" asp-area="Admin" asp-controller="Users" asp-action="Index">
+                    <i class="bi bi-people me-2"></i> Người dùng
+                </a>
+                <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Discounts" ? "active" : "")" asp-area="Admin" asp-controller="Discounts" asp-action="Index">
+                    <i class="bi bi-tag me-2"></i> Khuyến mãi
+                </a>
+                <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")" asp-area="Admin" asp-controller="Reports" asp-action="Index">
+                    <i class="bi bi-bar-chart me-2"></i> Báo cáo
+                </a>
+                <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")" asp-area="Admin" asp-controller="Settings" asp-action="Index">
+                    <i class="bi bi-gear me-2"></i> Cài đặt
+                </a>
+            </div>
+        </div>
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-primary" id="sidebarToggle"><i class="bi bi-list"></i></button>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="bi bi-person-circle me-1"></i> @User.Identity?.Name
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Index">Về trang chủ</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Profile">Hồ sơ</a>
+                                    <div class="dropdown-divider"></div>
+                                    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                    </form>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <!-- Page content -->
+            <div class="container-fluid p-4">
+                @if (TempData["Message"] != null)
+{
+    <div class="container-fluid mt-3">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
+
+@RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/admin.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

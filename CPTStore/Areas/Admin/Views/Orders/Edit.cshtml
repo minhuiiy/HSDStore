@@ -1,0 +1,195 @@
+@model CPTStore.Areas.Admin.ViewModels.OrderEditViewModel
+@using CPTStore.Models
+@{
+    ViewData["Title"] = "Cập nhật đơn hàng";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Cập nhật đơn hàng #@Model.Order.OrderNumber</h1>
+        <div>
+            <a asp-action="Details" asp-route-id="@Model.Order.Id" class="btn btn-info">
+                <i class="bi bi-info-circle"></i> Xem chi tiết
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin đơn hàng</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Order.Id" />
+                        
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Mã đơn hàng:</label>
+                            <div class="col-md-9">
+                                <input asp-for="Order.OrderNumber" class="form-control" readonly />
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Ngày đặt hàng:</label>
+                            <div class="col-md-9">
+                                <input type="text" value="@(Model.Order.CreatedAt.ToString("dd/MM/yyyy HH:mm"))" class="form-control" readonly />
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Khách hàng:</label>
+                            <div class="col-md-9">
+                                <input asp-for="Order.CustomerName" class="form-control" readonly />
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Email:</label>
+                            <div class="col-md-9">
+                                <input asp-for="Order.CustomerEmail" class="form-control" readonly />
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Số điện thoại:</label>
+                            <div class="col-md-9">
+                                <input asp-for="Order.CustomerPhone" class="form-control" readonly />
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Địa chỉ giao hàng:</label>
+                            <div class="col-md-9">
+                                <textarea asp-for="Order.ShippingAddress" class="form-control" readonly rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Phương thức thanh toán:</label>
+                            <div class="col-md-9">
+                                <input asp-for="Order.PaymentMethod" class="form-control" readonly />
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Trạng thái thanh toán:</label>
+                            <div class="col-md-9">
+                                <div class="form-check form-switch">
+                                    <input asp-for="Order.IsPaid" class="form-check-input" type="checkbox" />
+                                    <label class="form-check-label" for="Order_IsPaid">Đã thanh toán</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Trạng thái đơn hàng:</label>
+                            <div class="col-md-9">
+                                <select asp-for="Order.Status" asp-items="Model.OrderStatuses" class="form-select"></select>
+                            </div>
+                        </div>
+                        
+                        <!-- Tạm thời ẩn trường TrackingNumber vì cột này chưa có trong cơ sở dữ liệu -->
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Mã vận đơn:</label>
+                            <div class="col-md-9">
+                                <input asp-for="Order.TrackingNumber" class="form-control" />
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Ghi chú:</label>
+                            <div class="col-md-9">
+                                <textarea asp-for="Order.Notes" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-9 offset-md-3">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Lưu thay đổi
+                                </button>
+                                <a asp-action="Index" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Hủy
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tổng quan đơn hàng</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Tổng tiền sản phẩm:</span>
+                        <span>@Model.Order.SubTotal.ToString("N0") ₫</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Phí vận chuyển:</span>
+                        <span>@Model.Order.ShippingFee.ToString("N0") ₫</span>
+                    </div>
+                    @if (Model.Order.DiscountAmount > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Giảm giá:</span>
+                            <span>-@Model.Order.DiscountAmount.ToString("N0") ₫</span>
+                        </div>
+                    }
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Tổng thanh toán:</span>
+                        <span>@Model.Order.TotalAmount.ToString("N0") ₫</span>
+                    </div>
+                    
+                    <hr />
+                    
+                    <div class="d-grid gap-2">
+                        <a asp-action="UpdateStatus" asp-route-id="@Model.Order.Id" 
+                           class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStatusModal">
+                            <i class="bi bi-arrow-clockwise"></i> Cập nhật trạng thái
+                        </a>
+                    </div>
+                    
+                    <!-- Modal cập nhật trạng thái -->
+                    <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật trạng thái đơn hàng</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="updateStatusForm" asp-action="UpdateStatus" method="post">
+                                        <input type="hidden" name="id" value="@Model.Order.Id" />
+                                        <div class="mb-3">
+                                            <label for="statusSelect" class="form-label">Trạng thái mới</label>
+                                            <select id="statusSelect" name="status" class="form-select" asp-items="Model.OrderStatuses"></select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="statusNote" class="form-label">Ghi chú</label>
+                                            <textarea id="statusNote" name="note" class="form-control" rows="3"></textarea>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    <button type="button" class="btn btn-primary" onclick="document.getElementById('updateStatusForm').submit();">Cập nhật</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

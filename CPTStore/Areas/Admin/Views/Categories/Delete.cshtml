@@ -1,0 +1,122 @@
+@model CPTStore.Models.Category
+@{
+    ViewData["Title"] = "Xóa danh mục";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Xóa danh mục</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-danger text-white">
+            <h6 class="m-0 font-weight-bold">Xác nhận xóa danh mục</h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i> Bạn có chắc chắn muốn xóa danh mục này? Hành động này không thể hoàn tác.
+            </div>
+
+            @if (Model.Products != null && Model.Products.Any())
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i> <strong>Cảnh báo:</strong> Danh mục này hiện đang chứa @Model.Products.Count sản phẩm. Việc xóa danh mục có thể ảnh hưởng đến các sản phẩm này.
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-8">
+                    <table class="table">
+                        <tr>
+                            <th style="width: 30%">ID:</th>
+                            <td>@Model.Id</td>
+                        </tr>
+                        <tr>
+                            <th>Tên danh mục:</th>
+                            <td>@Model.Name</td>
+                        </tr>
+                        <tr>
+                            <th>Slug:</th>
+                            <td>@Model.Slug</td>
+                        </tr>
+                        <tr>
+                            <th>Mô tả:</th>
+                            <td>@(Model.Description ?? "Không có mô tả")</td>
+                        </tr>
+                        <tr>
+                            <th>Thứ tự hiển thị:</th>
+                            <td>@Model.DisplayOrder</td>
+                        </tr>
+                        <tr>
+                            <th>Trạng thái:</th>
+                            <td>
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">Hiển thị</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Ẩn</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Danh mục nổi bật:</th>
+                            <td>
+                                @if (Model.IsFeatured)
+                                {
+                                    <span class="badge bg-primary">Có</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Không</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Ngày tạo:</th>
+                            <td>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-4 text-center">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded" style="max-height: 200px;" />
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">Không có hình ảnh</div>
+                    }
+                </div>
+            </div>
+
+            <form asp-action="Delete" class="mt-4 text-center">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger confirm-delete">
+                    <i class="bi bi-trash"></i> Xác nhận xóa
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Hủy
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Xác nhận xóa
+            $(".confirm-delete").click(function (e) {
+                if (!confirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}

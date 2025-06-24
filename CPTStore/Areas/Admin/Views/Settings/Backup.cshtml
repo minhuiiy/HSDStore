@@ -1,0 +1,117 @@
+@{
+    ViewData["Title"] = "Sao lưu dữ liệu";
+    Layout = "_AdminLayout";
+    var backupFiles = ViewBag.BackupFiles as List<string> ?? new List<string>();
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Sao lưu dữ liệu</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tạo bản sao lưu mới</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CreateBackup" method="post">
+                        <div class="mb-3">
+                            <label for="backupName" class="form-label">Tên bản sao lưu (tùy chọn)</label>
+                            <input type="text" id="backupName" name="backupName" class="form-control" placeholder="Mặc định: ngày_giờ_hiện_tại" />
+                            <div class="form-text">Nếu không nhập, hệ thống sẽ tự động đặt tên theo thời gian hiện tại.</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeProducts" name="includeProducts" value="true" checked />
+                                <label class="form-check-label" for="includeProducts">Sao lưu dữ liệu sản phẩm</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeOrders" name="includeOrders" value="true" checked />
+                                <label class="form-check-label" for="includeOrders">Sao lưu dữ liệu đơn hàng</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeUsers" name="includeUsers" value="true" checked />
+                                <label class="form-check-label" for="includeUsers">Sao lưu dữ liệu người dùng</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeSettings" name="includeSettings" value="true" checked />
+                                <label class="form-check-label" for="includeSettings">Sao lưu cài đặt hệ thống</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-download"></i> Tạo bản sao lưu
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Bản sao lưu gần đây</h6>
+                </div>
+                <div class="card-body">
+                    @if (backupFiles.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Tên file</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Kích thước</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var file in backupFiles.Take(5))
+                                    {
+                                        <tr>
+                                            <td>@System.IO.Path.GetFileName(file)</td>
+                                            <td>@System.IO.File.GetCreationTime(file).ToString("dd/MM/yyyy HH:mm:ss")</td>
+                                            <td>@((new System.IO.FileInfo(file).Length / 1024).ToString("#,##0")) KB</td>
+                                            <td>
+                                                <a href="@Url.Action("DownloadBackup", new { fileName = System.IO.Path.GetFileName(file) })" class="btn btn-sm btn-info">
+                                                    <i class="bi bi-download"></i>
+                                                </a>
+                                                <form asp-action="DeleteBackup" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bản sao lưu này?')">
+                                                    <input type="hidden" name="backupFile" value="@System.IO.Path.GetFileName(file)" />
+                                                    <button type="submit" class="btn btn-danger btn-sm">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-3">
+                            <a asp-action="Restore" class="btn btn-secondary">
+                                <i class="bi bi-eye"></i> Xem tất cả bản sao lưu
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Không có bản sao lưu nào.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,143 @@
+@model IEnumerable<CPTStore.Models.Order>
+@using CPTStore.Models
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý đơn hàng</h1>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Tìm kiếm và lọc</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text">Mã đơn hàng</span>
+                        <input type="text" name="orderNumber" class="form-control" value="@ViewBag.CurrentOrderNumber" placeholder="Nhập mã đơn hàng...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text">Trạng thái</span>
+                        <select name="status" class="form-select" asp-items="@ViewBag.OrderStatuses">
+                            <option value="">Tất cả trạng thái</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text">Từ ngày</span>
+                        <input type="date" name="fromDate" class="form-control" value="@ViewBag.FromDate">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text">Đến ngày</span>
+                        <input type="date" name="toDate" class="form-control" value="@ViewBag.ToDate">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Tìm kiếm
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách đơn hàng</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã đơn hàng</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.OrderNumber</td>
+                                <td>@item.CustomerName</td>
+                                <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-end">@item.TotalAmount.ToString("N0") ₫</td>
+                                <td>
+                                    @switch (item.Status)
+                                    {
+                                        case OrderStatus.Pending:
+                                            <span class="badge bg-warning">Chờ xử lý</span>
+                                            break;
+                                        case OrderStatus.Processing:
+                                            <span class="badge bg-info">Đang xử lý</span>
+                                            break;
+                                        case OrderStatus.Shipped:
+                                            <span class="badge bg-primary">Đang giao hàng</span>
+                                            break;
+                                        case OrderStatus.Delivered:
+                                            <span class="badge bg-success">Đã giao hàng</span>
+                                            break;
+                                        case OrderStatus.Cancelled:
+                                            <span class="badge bg-danger">Đã hủy</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Chi tiết">
+                                            <i class="bi bi-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Chỉnh sửa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        @if (item.Status == OrderStatus.Pending)
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@item.Id"
+                                               class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">Không tìm thấy đơn hàng nào</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}

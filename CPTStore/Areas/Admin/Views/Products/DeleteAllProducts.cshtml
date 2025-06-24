@@ -1,0 +1,55 @@
+@{
+    ViewData["Title"] = "Xóa tất cả sản phẩm";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Xóa tất cả sản phẩm</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-danger text-white">
+            <h6 class="m-0 font-weight-bold">Xác nhận xóa tất cả sản phẩm</h6>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill"></i> <strong>CẢNH BÁO!</strong> Bạn đang chuẩn bị xóa <strong>TẤT CẢ</strong> sản phẩm khỏi cơ sở dữ liệu.
+            </div>
+            
+            <div class="alert alert-warning">
+                <p><i class="bi bi-info-circle-fill"></i> Hành động này sẽ:</p>
+                <ul>
+                    <li>Xóa tất cả sản phẩm khỏi cơ sở dữ liệu</li>
+                    <li>Xóa tất cả hình ảnh sản phẩm khỏi máy chủ</li>
+                    <li>Không thể hoàn tác sau khi thực hiện</li>
+                </ul>
+            </div>
+
+            <form asp-action="DeleteAllProducts" class="mt-4 text-center">
+                <button type="submit" class="btn btn-danger confirm-delete">
+                    <i class="bi bi-trash"></i> Xác nhận xóa tất cả sản phẩm
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Hủy
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Xác nhận xóa
+            $(".confirm-delete").click(function (e) {
+                if (!confirm("CẢNH BÁO: Bạn có chắc chắn muốn xóa TẤT CẢ sản phẩm? Hành động này không thể hoàn tác!")) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}

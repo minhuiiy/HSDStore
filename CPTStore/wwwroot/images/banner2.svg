@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="736" height="450" viewBox="0 0 736 450">
+  <defs>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f39c12;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e74c3c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="736" height="450" fill="url(#grad2)" />
+  <!-- Decorative summer elements -->
+  <circle cx="600" cy="80" r="60" fill="#f1c40f" /> <!-- Sun -->
+  <path d="M600,30 L600,10" stroke="#f1c40f" stroke-width="4" />
+  <path d="M600,150 L600,130" stroke="#f1c40f" stroke-width="4" />
+  <path d="M550,80 L530,80" stroke="#f1c40f" stroke-width="4" />
+  <path d="M670,80 L650,80" stroke="#f1c40f" stroke-width="4" />
+  <path d="M560,40 L545,25" stroke="#f1c40f" stroke-width="4" />
+  <path d="M640,120 L655,135" stroke="#f1c40f" stroke-width="4" />
+  <path d="M560,120 L545,135" stroke="#f1c40f" stroke-width="4" />
+  <path d="M640,40 L655,25" stroke="#f1c40f" stroke-width="4" />
+  
+  <!-- Palm tree silhouette -->
+  <path d="M100,450 C100,350 80,300 60,280 C100,290 120,270 130,240 C130,270 150,290 180,290 C150,300 130,320 120,350 C150,330 180,330 200,340 C170,350 150,370 140,400 C140,380 120,360 90,350 C110,380 100,410 100,450" fill="#2c3e50" />
+  
+  <text x="368" y="150" font-family="Arial, sans-serif" font-size="40" text-anchor="middle" fill="white">Khuyến mãi mùa hè</text>
+  <text x="368" y="200" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="white">Giảm giá lên đến 50% cho các sản phẩm mùa hè</text>
+  
+  <!-- Sale badge -->
+  <circle cx="550" cy="300" r="70" fill="white" />
+  <text x="550" y="280" font-family="Arial, sans-serif" font-size="30" font-weight="bold" text-anchor="middle" fill="#e74c3c">SALE</text>
+  <text x="550" y="320" font-family="Arial, sans-serif" font-size="40" font-weight="bold" text-anchor="middle" fill="#e74c3c">50%</text>
+  
+  <rect x="268" y="230" width="200" height="50" rx="25" ry="25" fill="#2c3e50" />
+  <text x="368" y="265" font-family="Arial, sans-serif" font-size="20" text-anchor="middle" fill="white">Xem ngay</text>
+</svg>

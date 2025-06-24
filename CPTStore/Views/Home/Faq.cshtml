@@ -1,0 +1,642 @@
+@{
+    ViewData["Title"] = "Câu hỏi thường gặp";
+}
+
+<div class="container py-5">
+    <h1 class="text-center mb-5">Câu hỏi thường gặp (FAQ)</h1>
+
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="list-group sticky-top" style="top: 2rem;" id="faq-list">
+                <a class="list-group-item list-group-item-action active" href="#general">Thông tin chung</a>
+                <a class="list-group-item list-group-item-action" href="#account">Tài khoản</a>
+                <a class="list-group-item list-group-item-action" href="#products">Sản phẩm</a>
+                <a class="list-group-item list-group-item-action" href="#orders">Đặt hàng</a>
+                <a class="list-group-item list-group-item-action" href="#shipping">Vận chuyển</a>
+                <a class="list-group-item list-group-item-action" href="#payment">Thanh toán</a>
+                <a class="list-group-item list-group-item-action" href="#returns">Đổi trả</a>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <!-- Thông tin chung -->
+            <div id="general" class="mb-5">
+                <h2 class="border-bottom pb-2 mb-4">Thông tin chung</h2>
+
+                <div class="accordion" id="accordionGeneral">
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingG1">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapseG1" aria-expanded="true" aria-controls="collapseG1">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> CPT Store là gì?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseG1" class="collapse show" aria-labelledby="headingG1" data-bs-parent="#accordionGeneral">
+                            <div class="card-body">
+                                <p>CPT Store là cửa hàng chuyên cung cấp các sản phẩm công nghệ chính hãng với chất lượng cao và giá cả cạnh tranh. Chúng tôi cung cấp đa dạng các sản phẩm từ điện thoại, laptop, máy tính bảng đến các phụ kiện công nghệ và thiết bị thông minh.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingG2">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseG2" aria-expanded="false" aria-controls="collapseG2">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Làm thế nào để liên hệ với bộ phận hỗ trợ khách hàng?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseG2" class="collapse" aria-labelledby="headingG2" data-bs-parent="#accordionGeneral">
+                            <div class="card-body">
+                                <p>Bạn có thể liên hệ với bộ phận hỗ trợ khách hàng của chúng tôi qua các kênh sau:</p>
+                                <ul>
+                                    <li><strong>Hotline:</strong> 1900 1234 (8:00 - 22:00 hàng ngày)</li>
+                                    <li><strong>Email:</strong> support@cptstore.com</li>
+                                    <li><strong>Live Chat:</strong> Trên website của chúng tôi</li>
+                                    <li><strong>Fanpage:</strong> facebook.com/cptstore</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingG3">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseG3" aria-expanded="false" aria-controls="collapseG3">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Giờ làm việc của CPT Store?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseG3" class="collapse" aria-labelledby="headingG3" data-bs-parent="#accordionGeneral">
+                            <div class="card-body">
+                                <p>Cửa hàng CPT Store mở cửa từ 8:00 đến 21:30 hàng ngày, kể cả các ngày lễ và cuối tuần. Riêng các dịp lễ lớn như Tết Nguyên đán, chúng tôi sẽ có thông báo lịch nghỉ cụ thể trên website và fanpage.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tài khoản -->
+            <div id="account" class="mb-5">
+                <h2 class="border-bottom pb-2 mb-4">Tài khoản</h2>
+
+                <div class="accordion" id="accordionAccount">
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingA1">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapseA1" aria-expanded="true" aria-controls="collapseA1">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Làm thế nào để tạo tài khoản?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseA1" class="collapse show" aria-labelledby="headingA1" data-bs-parent="#accordionAccount">
+                            <div class="card-body">
+                                <p>Để tạo tài khoản tại CPT Store, bạn có thể thực hiện theo các bước sau:</p>
+                                <ol>
+                                    <li>Truy cập vào trang web của CPT Store</li>
+                                    <li>Nhấp vào nút "Đăng ký" ở góc phải trên cùng của trang</li>
+                                    <li>Điền đầy đủ thông tin cá nhân theo yêu cầu</li>
+                                    <li>Xác nhận email đăng ký</li>
+                                    <li>Hoàn tất quá trình đăng ký</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingA2">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseA2" aria-expanded="false" aria-controls="collapseA2">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Tôi quên mật khẩu, phải làm sao?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseA2" class="collapse" aria-labelledby="headingA2" data-bs-parent="#accordionAccount">
+                            <div class="card-body">
+                                <p>Nếu bạn quên mật khẩu, bạn có thể thực hiện các bước sau để đặt lại mật khẩu:</p>
+                                <ol>
+                                    <li>Truy cập vào trang đăng nhập</li>
+                                    <li>Nhấp vào liên kết "Quên mật khẩu"</li>
+                                    <li>Nhập địa chỉ email đã đăng ký tài khoản</li>
+                                    <li>Kiểm tra email và làm theo hướng dẫn để đặt lại mật khẩu</li>
+                                </ol>
+                                <p>Nếu bạn không nhận được email, vui lòng kiểm tra thư mục spam hoặc liên hệ với bộ phận hỗ trợ khách hàng.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingA3">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseA3" aria-expanded="false" aria-controls="collapseA3">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Làm thế nào để cập nhật thông tin tài khoản?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseA3" class="collapse" aria-labelledby="headingA3" data-bs-parent="#accordionAccount">
+                            <div class="card-body">
+                                <p>Để cập nhật thông tin tài khoản, bạn cần:</p>
+                                <ol>
+                                    <li>Đăng nhập vào tài khoản của bạn</li>
+                                    <li>Nhấp vào tên người dùng ở góc phải trên cùng</li>
+                                    <li>Chọn "Thông tin tài khoản" hoặc "Hồ sơ"</li>
+                                    <li>Cập nhật thông tin cần thiết</li>
+                                    <li>Nhấp vào nút "Lưu thay đổi"</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sản phẩm -->
+            <div id="products" class="mb-5">
+                <h2 class="border-bottom pb-2 mb-4">Sản phẩm</h2>
+
+                <div class="accordion" id="accordionProducts">
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingP1">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapseP1" aria-expanded="true" aria-controls="collapseP1">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Các sản phẩm của CPT Store có chính hãng không?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseP1" class="collapse show" aria-labelledby="headingP1" data-bs-parent="#accordionProducts">
+                            <div class="card-body">
+                                <p>Tất cả sản phẩm được bán tại CPT Store đều là hàng chính hãng 100%, có đầy đủ giấy tờ, hóa đơn và được bảo hành theo chính sách của nhà sản xuất. Chúng tôi cam kết không kinh doanh hàng nhái, hàng kém chất lượng hoặc hàng không rõ nguồn gốc.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingP2">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseP2" aria-expanded="false" aria-controls="collapseP2">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Làm thế nào để kiểm tra tình trạng còn hàng của sản phẩm?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseP2" class="collapse" aria-labelledby="headingP2" data-bs-parent="#accordionProducts">
+                            <div class="card-body">
+                                <p>Bạn có thể kiểm tra tình trạng còn hàng của sản phẩm bằng cách:</p>
+                                <ol>
+                                    <li>Truy cập vào trang chi tiết sản phẩm</li>
+                                    <li>Kiểm tra thông tin "Còn hàng" hoặc "Hết hàng" được hiển thị trên trang</li>
+                                    <li>Đối với sản phẩm có nhiều phiên bản (màu sắc, dung lượng...), bạn cần chọn phiên bản cụ thể để kiểm tra tình trạng còn hàng</li>
+                                </ol>
+                                <p>Nếu sản phẩm hiển thị "Hết hàng", bạn có thể đăng ký nhận thông báo khi có hàng trở lại bằng cách nhập email vào mục "Thông báo khi có hàng".</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingP3">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseP3" aria-expanded="false" aria-controls="collapseP3">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Chính sách bảo hành sản phẩm như thế nào?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseP3" class="collapse" aria-labelledby="headingP3" data-bs-parent="#accordionProducts">
+                            <div class="card-body">
+                                <p>Chính sách bảo hành của CPT Store như sau:</p>
+                                <ul>
+                                    <li>Tất cả sản phẩm đều được bảo hành theo chính sách của nhà sản xuất</li>
+                                    <li>Thời gian bảo hành tùy thuộc vào từng loại sản phẩm, thông thường từ 12 đến 24 tháng</li>
+                                    <li>Đối với sản phẩm điện tử lớn (laptop, điện thoại, máy tính bảng), chúng tôi cung cấp dịch vụ bảo hành tại nhà trong phạm vi nội thành các thành phố lớn</li>
+                                    <li>Đối với các sản phẩm phụ kiện, khách hàng cần mang sản phẩm đến trực tiếp cửa hàng hoặc gửi về trung tâm bảo hành</li>
+                                </ul>
+                                <p>Để biết thêm chi tiết về chính sách bảo hành của từng sản phẩm cụ thể, vui lòng xem thông tin trên trang chi tiết sản phẩm hoặc liên hệ với bộ phận hỗ trợ khách hàng.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Đặt hàng -->
+            <div id="orders" class="mb-5">
+                <h2 class="border-bottom pb-2 mb-4">Đặt hàng</h2>
+
+                <div class="accordion" id="accordionOrders">
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingO1">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapseO1" aria-expanded="true" aria-controls="collapseO1">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Làm thế nào để đặt hàng trên website?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseO1" class="collapse show" aria-labelledby="headingO1" data-bs-parent="#accordionOrders">
+                            <div class="card-body">
+                                <p>Để đặt hàng trên website CPT Store, bạn có thể thực hiện theo các bước sau:</p>
+                                <ol>
+                                    <li>Tìm kiếm và chọn sản phẩm bạn muốn mua</li>
+                                    <li>Nhấp vào nút "Thêm vào giỏ hàng"</li>
+                                    <li>Kiểm tra giỏ hàng và nhấp vào nút "Thanh toán"</li>
+                                    <li>Điền thông tin giao hàng và chọn phương thức thanh toán</li>
+                                    <li>Xác nhận đơn hàng</li>
+                                </ol>
+                                <p>Sau khi đặt hàng thành công, bạn sẽ nhận được email xác nhận đơn hàng và có thể theo dõi trạng thái đơn hàng trong tài khoản của mình.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingO2">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseO2" aria-expanded="false" aria-controls="collapseO2">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Làm thế nào để theo dõi đơn hàng?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseO2" class="collapse" aria-labelledby="headingO2" data-bs-parent="#accordionOrders">
+                            <div class="card-body">
+                                <p>Bạn có thể theo dõi đơn hàng của mình bằng các cách sau:</p>
+                                <ol>
+                                    <li><strong>Qua tài khoản:</strong> Đăng nhập vào tài khoản của bạn, vào mục "Đơn hàng của tôi" để xem trạng thái đơn hàng</li>
+                                    <li><strong>Qua email:</strong> Kiểm tra email xác nhận đơn hàng, trong đó có thông tin về mã đơn hàng và liên kết để theo dõi</li>
+                                    <li><strong>Qua hotline:</strong> Gọi đến số hotline 1900 1234 và cung cấp mã đơn hàng để được hỗ trợ</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingO3">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseO3" aria-expanded="false" aria-controls="collapseO3">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Làm thế nào để hủy đơn hàng?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseO3" class="collapse" aria-labelledby="headingO3" data-bs-parent="#accordionOrders">
+                            <div class="card-body">
+                                <p>Để hủy đơn hàng, bạn có thể thực hiện theo các bước sau:</p>
+                                <ol>
+                                    <li>Đăng nhập vào tài khoản của bạn</li>
+                                    <li>Vào mục "Đơn hàng của tôi"</li>
+                                    <li>Tìm đơn hàng bạn muốn hủy</li>
+                                    <li>Nhấp vào nút "Hủy đơn hàng" (chỉ khả dụng khi đơn hàng chưa được xử lý hoặc giao hàng)</li>
+                                    <li>Xác nhận lý do hủy đơn hàng</li>
+                                </ol>
+                                <p><strong>Lưu ý:</strong> Bạn chỉ có thể hủy đơn hàng khi đơn hàng chưa được xử lý hoặc giao hàng. Nếu đơn hàng đã được xử lý hoặc đang trong quá trình giao hàng, vui lòng liên hệ với bộ phận hỗ trợ khách hàng để được hỗ trợ.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vận chuyển -->
+            <div id="shipping" class="mb-5">
+                <h2 class="border-bottom pb-2 mb-4">Vận chuyển</h2>
+
+                <div class="accordion" id="accordionShipping">
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingS1">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapseS1" aria-expanded="true" aria-controls="collapseS1">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Phí vận chuyển được tính như thế nào?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseS1" class="collapse show" aria-labelledby="headingS1" data-bs-parent="#accordionShipping">
+                            <div class="card-body">
+                                <p>Phí vận chuyển được tính dựa trên các yếu tố sau:</p>
+                                <ul>
+                                    <li>Khoảng cách từ kho hàng đến địa chỉ giao hàng</li>
+                                    <li>Trọng lượng và kích thước của sản phẩm</li>
+                                    <li>Phương thức vận chuyển bạn chọn (tiêu chuẩn, nhanh, hỏa tốc)</li>
+                                </ul>
+                                <p>Phí vận chuyển cụ thể sẽ được hiển thị trong quá trình thanh toán sau khi bạn nhập địa chỉ giao hàng.</p>
+                                <p><strong>Ưu đãi:</strong> Miễn phí vận chuyển cho đơn hàng từ 500.000đ trở lên (áp dụng cho khu vực nội thành các thành phố lớn).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingS2">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseS2" aria-expanded="false" aria-controls="collapseS2">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Thời gian giao hàng là bao lâu?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseS2" class="collapse" aria-labelledby="headingS2" data-bs-parent="#accordionShipping">
+                            <div class="card-body">
+                                <p>Thời gian giao hàng phụ thuộc vào khu vực và phương thức vận chuyển bạn chọn:</p>
+                                <ul>
+                                    <li><strong>Khu vực nội thành các thành phố lớn:</strong>
+                                        <ul>
+                                            <li>Giao hàng tiêu chuẩn: 1-2 ngày làm việc</li>
+                                            <li>Giao hàng nhanh: Trong ngày hoặc hôm sau (đối với đơn hàng đặt trước 11:00)</li>
+                                            <li>Giao hàng hỏa tốc: 2-3 giờ (chỉ áp dụng cho một số khu vực)</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Khu vực tỉnh thành khác:</strong>
+                                        <ul>
+                                            <li>Giao hàng tiêu chuẩn: 3-5 ngày làm việc</li>
+                                            <li>Giao hàng nhanh: 2-3 ngày làm việc</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Khu vực miền núi, hải đảo:</strong> 5-7 ngày làm việc</li>
+                                </ul>
+                                <p><strong>Lưu ý:</strong> Thời gian giao hàng có thể bị ảnh hưởng bởi các yếu tố như thời tiết, giao thông, hoặc các sự kiện đặc biệt.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingS3">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseS3" aria-expanded="false" aria-controls="collapseS3">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> CPT Store có giao hàng quốc tế không?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseS3" class="collapse" aria-labelledby="headingS3" data-bs-parent="#accordionShipping">
+                            <div class="card-body">
+                                <p>Hiện tại, CPT Store chỉ cung cấp dịch vụ giao hàng trong lãnh thổ Việt Nam. Chúng tôi đang trong quá trình mở rộng dịch vụ giao hàng quốc tế và sẽ thông báo khi dịch vụ này được triển khai.</p>
+                                <p>Nếu bạn có nhu cầu giao hàng quốc tế, vui lòng liên hệ với bộ phận hỗ trợ khách hàng để được tư vấn về các giải pháp thay thế.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thanh toán -->
+            <div id="payment" class="mb-5">
+                <h2 class="border-bottom pb-2 mb-4">Thanh toán</h2>
+
+                <div class="accordion" id="accordionPayment">
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingPay1">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePay1" aria-expanded="true" aria-controls="collapsePay1">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Các phương thức thanh toán nào được chấp nhận?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapsePay1" class="collapse show" aria-labelledby="headingPay1" data-bs-parent="#accordionPayment">
+                            <div class="card-body">
+                                <p>CPT Store chấp nhận các phương thức thanh toán sau:</p>
+                                <ul>
+                                    <li><strong>Thanh toán khi nhận hàng (COD):</strong> Thanh toán bằng tiền mặt khi nhận hàng</li>
+                                    <li><strong>Thẻ tín dụng/ghi nợ:</strong> Visa, MasterCard, JCB, American Express</li>
+                                    <li><strong>Chuyển khoản ngân hàng:</strong> Chuyển khoản đến tài khoản ngân hàng của CPT Store</li>
+                                    <li><strong>Ví điện tử:</strong> MoMo, ZaloPay, VNPay, ShopeePay</li>
+                                    <li><strong>Trả góp:</strong> Trả góp qua thẻ tín dụng hoặc công ty tài chính (Home Credit, FE Credit)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingPay2">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePay2" aria-expanded="false" aria-controls="collapsePay2">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Làm thế nào để thanh toán trả góp?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapsePay2" class="collapse" aria-labelledby="headingPay2" data-bs-parent="#accordionPayment">
+                            <div class="card-body">
+                                <p>Để thanh toán trả góp, bạn có thể lựa chọn một trong hai hình thức sau:</p>
+                                <ol>
+                                    <li><strong>Trả góp qua thẻ tín dụng:</strong>
+                                        <ul>
+                                            <li>Áp dụng cho chủ thẻ tín dụng của các ngân hàng liên kết</li>
+                                            <li>Kỳ hạn trả góp: 3, 6, 9, 12 tháng</li>
+                                            <li>Lãi suất: 0% hoặc theo quy định của ngân hàng</li>
+                                            <li>Phí chuyển đổi: 1-2% giá trị đơn hàng (tùy theo ngân hàng)</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Trả góp qua công ty tài chính:</strong>
+                                        <ul>
+                                            <li>Áp dụng cho khách hàng có CMND/CCCD và hộ khẩu/KT3</li>
+                                            <li>Kỳ hạn trả góp: 6, 9, 12, 18, 24 tháng</li>
+                                            <li>Trả trước: 20-40% giá trị sản phẩm</li>
+                                            <li>Lãi suất: Theo quy định của công ty tài chính</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                                <p>Để đăng ký trả góp, bạn có thể chọn phương thức "Trả góp" trong quá trình thanh toán hoặc liên hệ trực tiếp với cửa hàng để được hướng dẫn chi tiết.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingPay3">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePay3" aria-expanded="false" aria-controls="collapsePay3">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Thanh toán online có an toàn không?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapsePay3" class="collapse" aria-labelledby="headingPay3" data-bs-parent="#accordionPayment">
+                            <div class="card-body">
+                                <p>Thanh toán online tại CPT Store hoàn toàn an toàn và bảo mật. Chúng tôi áp dụng các biện pháp bảo mật cao nhất để bảo vệ thông tin thanh toán của khách hàng:</p>
+                                <ul>
+                                    <li>Sử dụng công nghệ mã hóa SSL 256-bit để bảo vệ thông tin thanh toán</li>
+                                    <li>Tuân thủ tiêu chuẩn bảo mật PCI DSS trong việc xử lý dữ liệu thẻ</li>
+                                    <li>Không lưu trữ thông tin thẻ tín dụng của khách hàng</li>
+                                    <li>Sử dụng các cổng thanh toán uy tín và được cấp phép</li>
+                                    <li>Áp dụng xác thực hai yếu tố (2FA) cho các giao dịch giá trị cao</li>
+                                </ul>
+                                <p>Nếu bạn có bất kỳ lo ngại nào về bảo mật thanh toán, vui lòng liên hệ với bộ phận hỗ trợ khách hàng để được tư vấn.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Đổi trả -->
+            <div id="returns" class="mb-5">
+                <h2 class="border-bottom pb-2 mb-4">Đổi trả</h2>
+
+                <div class="accordion" id="accordionReturns">
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingR1">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapseR1" aria-expanded="true" aria-controls="collapseR1">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Chính sách đổi trả như thế nào?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseR1" class="collapse show" aria-labelledby="headingR1" data-bs-parent="#accordionReturns">
+                            <div class="card-body">
+                                <p>Chính sách đổi trả của CPT Store như sau:</p>
+                                <ul>
+                                    <li><strong>Thời gian đổi trả:</strong> Trong vòng 30 ngày kể từ ngày nhận hàng</li>
+                                    <li><strong>Điều kiện đổi trả:</strong>
+                                        <ul>
+                                            <li>Sản phẩm còn nguyên vẹn, không có dấu hiệu đã qua sử dụng</li>
+                                            <li>Còn đầy đủ bao bì, phụ kiện, quà tặng kèm theo (nếu có)</li>
+                                            <li>Có hóa đơn mua hàng hoặc phiếu giao hàng</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Các trường hợp được đổi trả:</strong>
+                                        <ul>
+                                            <li>Sản phẩm bị lỗi do nhà sản xuất</li>
+                                            <li>Sản phẩm không đúng mẫu mã, chủng loại, kích thước như đã đặt</li>
+                                            <li>Sản phẩm không đáp ứng được các thông số kỹ thuật như mô tả</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                                <p><strong>Lưu ý:</strong> Một số sản phẩm có chính sách đổi trả riêng, vui lòng kiểm tra thông tin trên trang chi tiết sản phẩm.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingR2">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseR2" aria-expanded="false" aria-controls="collapseR2">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Làm thế nào để yêu cầu đổi trả sản phẩm?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseR2" class="collapse" aria-labelledby="headingR2" data-bs-parent="#accordionReturns">
+                            <div class="card-body">
+                                <p>Để yêu cầu đổi trả sản phẩm, bạn có thể thực hiện theo các bước sau:</p>
+                                <ol>
+                                    <li><strong>Qua website:</strong>
+                                        <ul>
+                                            <li>Đăng nhập vào tài khoản của bạn</li>
+                                            <li>Vào mục "Đơn hàng của tôi"</li>
+                                            <li>Tìm đơn hàng có sản phẩm cần đổi trả</li>
+                                            <li>Nhấp vào nút "Yêu cầu đổi trả"</li>
+                                            <li>Điền thông tin yêu cầu đổi trả và gửi đi</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Qua hotline:</strong>
+                                        <ul>
+                                            <li>Gọi đến số hotline 1900 1234</li>
+                                            <li>Cung cấp thông tin đơn hàng và lý do đổi trả</li>
+                                            <li>Nhân viên hỗ trợ sẽ hướng dẫn bạn các bước tiếp theo</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Trực tiếp tại cửa hàng:</strong>
+                                        <ul>
+                                            <li>Mang sản phẩm cần đổi trả đến cửa hàng CPT Store gần nhất</li>
+                                            <li>Xuất trình hóa đơn mua hàng hoặc phiếu giao hàng</li>
+                                            <li>Nhân viên cửa hàng sẽ hỗ trợ bạn thực hiện đổi trả</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 mb-3 shadow-sm">
+                        <div class="card-header bg-white" id="headingR3">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-dark text-decoration-none w-100 text-start collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseR3" aria-expanded="false" aria-controls="collapseR3">
+                                    <i class="fas fa-question-circle me-2 text-primary"></i> Hoàn tiền khi đổi trả sản phẩm như thế nào?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseR3" class="collapse" aria-labelledby="headingR3" data-bs-parent="#accordionReturns">
+                            <div class="card-body">
+                                <p>Quy trình hoàn tiền khi đổi trả sản phẩm như sau:</p>
+                                <ul>
+                                    <li><strong>Phương thức hoàn tiền:</strong> Hoàn tiền theo phương thức thanh toán ban đầu
+                                        <ul>
+                                            <li>Thanh toán thẻ: Hoàn tiền vào thẻ đã thanh toán</li>
+                                            <li>Chuyển khoản: Hoàn tiền vào tài khoản ngân hàng của khách hàng</li>
+                                            <li>Ví điện tử: Hoàn tiền vào ví điện tử đã thanh toán</li>
+                                            <li>Tiền mặt (COD): Hoàn tiền mặt tại cửa hàng hoặc chuyển khoản</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Thời gian hoàn tiền:</strong>
+                                        <ul>
+                                            <li>Hoàn tiền mặt: Ngay khi xác nhận đổi trả thành công</li>
+                                            <li>Hoàn tiền qua thẻ tín dụng/ghi nợ: 5-15 ngày làm việc</li>
+                                            <li>Hoàn tiền qua chuyển khoản: 3-5 ngày làm việc</li>
+                                            <li>Hoàn tiền qua ví điện tử: 1-3 ngày làm việc</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                                <p><strong>Lưu ý:</strong> Thời gian hoàn tiền có thể thay đổi tùy thuộc vào chính sách của ngân hàng hoặc đơn vị thanh toán.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <p>Bạn không tìm thấy câu trả lời cho câu hỏi của mình? Vui lòng liên hệ với chúng tôi qua:</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="/Home/Contact" class="btn btn-primary"><i class="fas fa-envelope me-2"></i>Liên hệ</a>
+            <a href="tel:19001234" class="btn btn-outline-primary"><i class="fas fa-phone-alt me-2"></i>1900 1234</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Xử lý cuộn trang khi nhấp vào các liên kết trong danh sách
+        document.addEventListener('DOMContentLoaded', function () {
+            const links = document.querySelectorAll('#faq-list a');
+            
+            links.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    // Xóa lớp active từ tất cả các liên kết
+                    links.forEach(l => l.classList.remove('active'));
+                    
+                    // Thêm lớp active cho liên kết được nhấp
+                    this.classList.add('active');
+                    
+                    // Lấy ID của phần tử mục tiêu
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    // Cuộn đến phần tử mục tiêu với hiệu ứng mượt
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+            
+            // Xử lý cuộn trang để cập nhật liên kết active với kỹ thuật throttle
+            let lastScrollTime = 0;
+            let scrollTimeoutId = null;
+            
+            function updateActiveLink() {
+                const sections = document.querySelectorAll('.col-lg-9 > div[id]');
+                let currentSection = '';
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - 100;
+                    const sectionHeight = section.offsetHeight;
+                    
+                    if (window.pageYOffset >= sectionTop && window.pageYOffset < sectionTop + sectionHeight) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+                
+                if (currentSection) {
+                    links.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === '#' + currentSection) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            }
+            
+            // Đăng ký với smooth-scroll.js
+            if (!window._existingScrollHandlers) {
+                window._existingScrollHandlers = [];
+            }
+            window._existingScrollHandlers.push(updateActiveLink);
+            });
+        });
+    </script>
+}

@@ -1,0 +1,36 @@
+@model List<CPTStore.Models.CartItem>
+@using CPTStore.Extensions
+
+<div class="table-responsive">
+    <table class="table table-borderless">
+        <tbody>
+            @if (Model != null)
+            {
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td class="text-start">
+                        <div class="d-flex align-items-center">
+                            @if (!string.IsNullOrEmpty(item.GetImageUrl()))
+                            {
+                                <img src="@item.GetImageUrl()" alt="@item.GetProductName()" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <img src="/images/no-image.png" alt="No Image" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                            }
+                            <div>
+                                <span>@item.GetProductName()</span>
+                                <small class="d-block text-muted">@item.Quantity x @item.GetPrice().ToString("N0") VNĐ</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-end">
+                        @(item.GetTotalPrice().ToString("N0")) VNĐ
+                    </td>
+                </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

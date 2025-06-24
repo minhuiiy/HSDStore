@@ -1,0 +1,129 @@
+@model CPTStore.Models.Discount
+@{
+    ViewData["Title"] = "Thêm mã giảm giá mới";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Thêm mã giảm giá mới</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin mã giảm giá</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Code" class="control-label">Mã giảm giá</label>
+                            <input asp-for="Code" class="form-control" />
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label">Mô tả</label>
+                            <input asp-for="Description" class="form-control" />
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="DiscountType" class="control-label">Loại giảm giá</label>
+                            <select asp-for="DiscountType" class="form-select" asp-items="Html.GetEnumSelectList<CPTStore.Models.DiscountType>()">
+                            </select>
+                            <span asp-validation-for="DiscountType" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Value" class="control-label">Giá trị</label>
+                            <input asp-for="Value" class="form-control" />
+                            <span asp-validation-for="Value" class="text-danger"></span>
+                            <small class="form-text text-muted">Nhập phần trăm (%) hoặc số tiền cố định tùy theo loại giảm giá.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="MinimumOrderAmount" class="control-label">Giá trị đơn hàng tối thiểu</label>
+                            <input asp-for="MinimumOrderAmount" class="form-control" />
+                            <span asp-validation-for="MinimumOrderAmount" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="MaximumDiscountAmount" class="control-label">Giảm giá tối đa</label>
+                            <input asp-for="MaximumDiscountAmount" class="form-control" />
+                            <span asp-validation-for="MaximumDiscountAmount" class="text-danger"></span>
+                            <small class="form-text text-muted">Áp dụng cho giảm giá theo phần trăm. Để trống nếu không giới hạn.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="StartDate" class="control-label">Ngày bắt đầu</label>
+                            <input asp-for="StartDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="EndDate" class="control-label">Ngày kết thúc</label>
+                            <input asp-for="EndDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="EndDate" class="text-danger"></span>
+                            <small class="form-text text-muted">Để trống nếu không có ngày kết thúc.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="UsageLimit" class="control-label">Giới hạn sử dụng</label>
+                            <input asp-for="UsageLimit" class="form-control" />
+                            <span asp-validation-for="UsageLimit" class="text-danger"></span>
+                            <small class="form-text text-muted">Để trống nếu không giới hạn số lần sử dụng.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mt-4">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">Kích hoạt</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Lưu
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-x"></i> Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,272 @@
+@model CPTStore.ViewModels.CheckoutViewModel
+@using CPTStore.Models
+@using System.Linq
+
+@{
+    ViewData["Title"] = "Thanh toán";
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Cart")">Giỏ hàng</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Thanh toán</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">Thanh toán</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Thông tin giao hàng</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="@Url.Action("PlaceOrder", "Order")" id="checkoutForm">
+                        @Html.AntiForgeryToken()
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="FirstName" class="form-label">Họ</label>
+                                    <input asp-for="FirstName" class="form-control" required />
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="LastName" class="form-label">Tên</label>
+                                    <input asp-for="LastName" class="form-control" required />
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Email" class="form-label">Email</label>
+                                    <input asp-for="Email" type="email" class="form-control" required />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Phone" class="form-label">Số điện thoại</label>
+                                    <input asp-for="Phone" class="form-control" required />
+                                    <span asp-validation-for="Phone" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Address" class="form-label">Địa chỉ</label>
+                            <input asp-for="Address" class="form-control" required />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="City" class="form-label">Tỉnh/Thành phố</label>
+                                    <input asp-for="City" class="form-control" required />
+                                    <span asp-validation-for="City" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="District" class="form-label">Quận/Huyện</label>
+                                    <input asp-for="District" class="form-control" required />
+                                    <span asp-validation-for="District" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="Ward" class="form-label">Phường/Xã</label>
+                                    <input asp-for="Ward" class="form-control" required />
+                                    <span asp-validation-for="Ward" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="Note" class="form-label">Ghi chú</label>
+                            <textarea asp-for="Note" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Note" class="text-danger"></span>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Phương thức vận chuyển</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="ShippingMethod" id="standardShipping" value="Standard" checked>
+                                    <label class="form-check-label" for="standardShipping">
+                                        Giao hàng tiêu chuẩn (2-3 ngày) - @Model.StandardShippingFee.ToString("N0") VNĐ
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="ShippingMethod" id="expressShipping" value="Express">
+                                    <label class="form-check-label" for="expressShipping">
+                                        Giao hàng nhanh (1-2 ngày) - @Model.ExpressShippingFee.ToString("N0") VNĐ
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Phương thức thanh toán</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="cod" value="@PaymentMethod.COD" checked>
+                                    <label class="form-check-label" for="cod">
+                                        Thanh toán khi nhận hàng (COD)
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="bankTransfer" value="@PaymentMethod.BankTransfer">
+                                    <label class="form-check-label" for="bankTransfer">
+                                        Chuyển khoản ngân hàng
+                                    </label>
+                                </div>
+                                <div id="bankInfo" class="mt-3 d-none">
+                                    <div class="alert alert-info">
+                                        <h6>Thông tin chuyển khoản:</h6>
+                                        <p class="mb-1">Ngân hàng: <strong>Vietcombank</strong></p>
+                                        <p class="mb-1">Số tài khoản: <strong>1234567890</strong></p>
+                                        <p class="mb-1">Chủ tài khoản: <strong>CÔNG TY TNHH CPT STORE</strong></p>
+                                        <p class="mb-0">Nội dung: <strong>Thanh toan don hang #[Mã đơn hàng]</strong></p>
+                                    </div>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="creditCard" value="@PaymentMethod.CreditCard">
+                                    <label class="form-check-label" for="creditCard">
+                                        Thẻ tín dụng/Ghi nợ
+                                    </label>
+                                </div>
+                                <div id="creditCardInfo" class="mt-3 d-none">
+                                    <div class="mb-3">
+                                        <label for="cardNumber" class="form-label">Số thẻ</label>
+                                        <input type="text" class="form-control" id="cardNumber" placeholder="XXXX XXXX XXXX XXXX">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="expiryDate" class="form-label">Ngày hết hạn</label>
+                                            <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="cvv" class="form-label">CVV</label>
+                                            <input type="text" class="form-control" id="cvv" placeholder="XXX">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="cardholderName" class="form-label">Tên chủ thẻ</label>
+                                        <input type="text" class="form-control" id="cardholderName">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Đơn hàng của bạn</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <tbody>
+                                @foreach (var item in Model.CartItems ?? Enumerable.Empty<CPTStore.Models.CartItem>())
+                                {
+                                    <tr>
+                                        <td class="text-start">
+                                            <div class="d-flex align-items-center">
+                                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                                {
+                                                    <img src="@item.ImageUrl" alt="@item.ProductName" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                                }
+                                                else
+                                                {
+                                                    <img src="/images/no-image.png" alt="No Image" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                                }
+                                                <div>
+                                                    <span>@item.ProductName</span>
+                                                    <small class="d-block text-muted">@item.Quantity x @item.Price.ToString("N0") VNĐ</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            @((item.Price * item.Quantity).ToString("N0")) VNĐ
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tạm tính:</span>
+                        <span>@Model.SubTotal.ToString("N0") VNĐ</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Phí vận chuyển:</span>
+                        <span id="shippingFee">@Model.ShippingFee.ToString("N0") VNĐ</span>
+                    </div>
+
+                    @if (Model.Discount > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Giảm giá:</span>
+                            <span>-@Model.Discount.ToString("N0") VNĐ</span>
+                        </div>
+                    }
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="fw-bold">Tổng cộng:</span>
+                        <span class="fw-bold text-danger fs-5" id="totalAmount">@Model.TotalAmount.ToString("N0") VNĐ</span>
+                    </div>
+
+                    <button type="submit" form="checkoutForm" class="btn btn-success w-100">
+                        <i class="bi bi-check-circle"></i> Đặt hàng
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Mã giảm giá</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="@Url.Action("ApplyDiscount", "Cart")" class="d-flex">
+                        @Html.AntiForgeryToken()
+                        <input type="text" name="discountCode" class="form-control me-2" placeholder="Nhập mã giảm giá">
+                        <button type="submit" class="btn btn-primary">Áp dụng</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            setupCheckoutForm();
+        });
+    </script>
+}

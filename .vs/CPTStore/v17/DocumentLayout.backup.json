@@ -1,0 +1,45 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\ADMIN\\source\\repos\\CPTStore\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{013D4165-CE79-49ED-8599-96B37BF32407}|CPTStore\\CPTStore.csproj|c:\\users\\admin\\source\\repos\\cptstore\\cptstore\\services\\orderservicev2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{013D4165-CE79-49ED-8599-96B37BF32407}|CPTStore\\CPTStore.csproj|solutionrelative:cptstore\\services\\orderservicev2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e5c86464-96be-4d7c-9a8b-abcb3bbf5f92}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "OrderServiceV2.cs",
+              "DocumentMoniker": "C:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\Services\\OrderServiceV2.cs",
+              "RelativeDocumentMoniker": "CPTStore\\Services\\OrderServiceV2.cs",
+              "ToolTip": "C:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\Services\\OrderServiceV2.cs",
+              "RelativeToolTip": "CPTStore\\Services\\OrderServiceV2.cs",
+              "ViewState": "AgIAAHoBAAAAAAAAAAAmwIcBAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T16:00:40.857Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+@model CPTStore.Areas.Admin.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Trang quản trị";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Tổng quan</h1>
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <!-- Thống kê tổng quan -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h3 mb-0">@Model.TotalOrders</div>
+                            <div class="small">Tổng đơn hàng</div>
+                        </div>
+                        <i class="bi bi-cart-check fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h3 mb-0">@Model.TotalProducts</div>
+                            <div class="small">Tổng sản phẩm</div>
+                        </div>
+                        <i class="bi bi-box-seam fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h3 mb-0">@Model.TotalCategories</div>
+                            <div class="small">Danh mục</div>
+                        </div>
+                        <i class="bi bi-grid fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h3 mb-0">@Model.TotalUsers</div>
+                            <div class="small">Người dùng</div>
+                        </div>
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ doanh thu -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Doanh thu theo tháng</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Đơn hàng gần đây -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Đơn hàng gần đây</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model.RecentOrders)
+                                {
+                                    <tr>
+                                        <td>#@order.Id</td>
+                                        <td>@order.CustomerName</td>
+                                        <td>@order.TotalAmount.ToString("N0") VNĐ</td>
+                                        <td>
+                                            <span class="badge bg-@(order.Status switch {
+                                                OrderStatus.Pending => "warning",
+                                                OrderStatus.Processing => "info",
+                                                OrderStatus.Shipped => "primary",
+                                                OrderStatus.Delivered => "success",
+                                                OrderStatus.Cancelled => "danger",
+                                                _ => "secondary"
+                                            })">@order.Status</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sản phẩm bán chạy -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Sản phẩm bán chạy</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Danh mục</th>
+                                    <th>Giá</th>
+                                    <th>Tồn kho</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var product in Model.TopSellingProducts)
+                                {
+                                    <tr>
+                                        <td>@product.Name</td>
+                                        <td>@product.Category?.Name</td>
+                                        <td>@product.Price.ToString("N0") VNĐ</td>
+                                        <td>@product.Stock</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        try {
+            // Lấy dữ liệu doanh thu từ Model
+            var revenueLabels = @Html.Raw(Json.Serialize(Model.MonthlyRevenue.Keys));
+            var revenueData = @Html.Raw(Json.Serialize(Model.MonthlyRevenue.Values));
+            
+            // Kiểm tra dữ liệu hợp lệ
+            if (!revenueLabels || !revenueData || revenueLabels.length === 0) {
+                console.error('Dữ liệu doanh thu không hợp lệ');
+                // Tạo dữ liệu mặc định
+                revenueLabels = [];
+                revenueData = [];
+                
+                // Tạo dữ liệu cho 6 tháng gần nhất
+                var today = new Date();
+                for (var i = 0; i < 6; i++) {
+                    var date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                    revenueLabels.unshift((date.getMonth() + 1) + '/' + date.getFullYear());
+                    revenueData.unshift(0);
+                }
+            }
+            
+            // Khởi tạo biểu đồ doanh thu
+            var ctx = document.getElementById('revenueChart').getContext('2d');
+            var revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: revenueLabels,
+                    datasets: [{
+                        label: 'Doanh thu',
+                        data: revenueData,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('vi-VN') + ' VNĐ';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Lỗi khi tạo biểu đồ doanh thu:', error);
+            // Hiển thị thông báo lỗi trong biểu đồ
+            document.getElementById('revenueChart').insertAdjacentHTML('afterend', 
+                '<div class="alert alert-warning mt-3">Không thể tải biểu đồ doanh thu. Vui lòng thử lại sau.</div>');
+        }
+    </script>
+}

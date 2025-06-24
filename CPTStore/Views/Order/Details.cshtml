@@ -1,0 +1,219 @@
+@model CPTStore.Models.Order
+@using CPTStore.Models
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("MyOrders", "Order")">Đơn hàng của tôi</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chi tiết đơn hàng #@Model.OrderReference</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Đơn hàng #@Model.OrderReference</h5>
+                    <span class="badge @(Model.Status == OrderStatus.Delivered ? "bg-success" : Model.Status == OrderStatus.Cancelled ? "bg-danger" : "bg-primary")">@Model.Status</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Thông tin giao hàng</h6>
+                            <address>
+                                <strong>@Model.FirstName @Model.LastName</strong><br>
+                                @Model.Address<br>
+                                @Model.Ward, @Model.District<br>
+                                @Model.City<br>
+                                <abbr title="Phone">SĐT:</abbr> @Model.Phone
+                            </address>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Thông tin đơn hàng</h6>
+                            <p><strong>Mã đơn hàng:</strong> @Model.OrderReference</p>
+                            <p><strong>Ngày đặt hàng:</strong> @(Model.OrderDate != default(DateTime) ? Model.OrderDate.ToString("dd/MM/yyyy HH:mm") : Model.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</p>
+                            <p><strong>Phương thức thanh toán:</strong> @(Model.PaymentMethod == PaymentMethod.COD ? "Thanh toán khi nhận hàng" : Model.PaymentMethod == PaymentMethod.BankTransfer ? "Chuyển khoản ngân hàng" : "Thẻ tín dụng/Ghi nợ")</p>
+                            <p><strong>Trạng thái thanh toán:</strong> <span class="@(Model.PaymentStatus == PaymentStatus.Completed ? "text-success" : "text-warning")">@(Model.PaymentStatus == PaymentStatus.Completed ? "Đã thanh toán" : "Chưa thanh toán")</span></p>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Note))
+                    {
+                        <div class="mt-3">
+                            <h6>Ghi chú:</h6>
+                            <p>@Model.Note</p>
+                        </div>
+                    }
+
+                    <div class="order-tracking-progress">
+                        <div class="step @(Model.Status == OrderStatus.Pending || Model.Status == OrderStatus.Processing || Model.Status == OrderStatus.Shipped || Model.Status == OrderStatus.Delivered ? "active" : "")">
+                            <div class="step-icon"><i class="fas fa-clipboard-check"></i></div>
+                            <div class="step-text">Đã đặt hàng</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step @(Model.Status == OrderStatus.Processing || Model.Status == OrderStatus.Shipped || Model.Status == OrderStatus.Delivered ? "active" : "")">
+                            <div class="step-icon"><i class="fas fa-box"></i></div>
+                            <div class="step-text">Đang xử lý</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step @(Model.Status == OrderStatus.Shipped || Model.Status == OrderStatus.Delivered ? "active" : "")">
+                            <div class="step-icon"><i class="fas fa-shipping-fast"></i></div>
+                            <div class="step-text">Đang giao hàng</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step @(Model.Status == OrderStatus.Delivered ? "active" : "")">
+                            <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="step-text">Đã giao hàng</div>
+                        </div>
+                    </div>
+
+                    @if (Model.Status == OrderStatus.Pending || Model.Status == OrderStatus.Processing)
+                    {
+                        <div class="mt-4 text-center">
+                            <form method="post" action="@Url.Action("CancelOrder", "Order")">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="orderId" value="@Model.Id" />
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
+                                    <i class="bi bi-x-circle"></i> Hủy đơn hàng
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Sản phẩm đã đặt</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th class="text-center">Đơn giá</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-end">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (item.Product != null && !string.IsNullOrEmpty(item.Product.ImageUrl))
+                                                {
+                                                    <img src="@item.Product.ImageUrl" alt="@item.ProductName" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                                }
+                                                else
+                                                {
+                                                    <img src="/images/no-image.png" alt="No Image" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                                }
+                                                <div>
+                                                    <span>@item.ProductName</span>
+                                                    @if (item.Product != null)
+                                                    {
+                                                        <a href="@Url.Action("Details", "Product", new { id = item.ProductId })" class="d-block small text-primary">Xem sản phẩm</a>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">@item.Price.ToString("N0") VNĐ</td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-end">@((item.Price * item.Quantity).ToString("N0")) VNĐ</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end">Tạm tính:</td>
+                                    <td class="text-end">@Model.SubTotal.ToString("N0") VNĐ</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end">Phí vận chuyển:</td>
+                                    <td class="text-end">@Model.ShippingFee.ToString("N0") VNĐ</td>
+                                </tr>
+                                @if (Model.Discount > 0)
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-end text-success">Giảm giá:</td>
+                                        <td class="text-end text-success">-@Model.Discount.ToString("N0") VNĐ</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold">Tổng cộng:</td>
+                                    <td class="text-end fw-bold">@Model.TotalAmount.ToString("N0") VNĐ</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            @if (Model.Status == OrderStatus.Delivered)
+            {
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Đánh giá sản phẩm</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Hãy đánh giá sản phẩm để giúp người mua khác có thêm thông tin!</p>
+                        <div class="list-group">
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        @if (item.Product != null && !string.IsNullOrEmpty(item.Product.ImageUrl))
+                                        {
+                                            <img src="@item.Product.ImageUrl" alt="@item.ProductName" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <img src="/images/no-image.png" alt="No Image" class="img-thumbnail me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                        }
+                                        <div>
+                                            <span>@item.ProductName</span>
+                                            @if (item.Product != null)
+                                            {
+                                                <a href="@Url.Action("Details", "Product", new { id = item.ProductId })#review-section" class="btn btn-sm btn-outline-primary mt-1">Đánh giá</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Hỗ trợ</h5>
+                </div>
+                <div class="card-body">
+                    <p>Nếu bạn có bất kỳ câu hỏi nào về đơn hàng, vui lòng liên hệ với chúng tôi:</p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-telephone me-2"></i> Hotline: <strong>1900 1234</strong></li>
+                        <li><i class="bi bi-envelope me-2"></i> Email: <strong>support@cptstore.com</strong></li>
+                        <li><i class="bi bi-chat-dots me-2"></i> <a href="#">Chat trực tuyến</a></li>
+                    </ul>
+                    <hr>
+                    <div class="text-center">
+                        <a href="@Url.Action("MyOrders", "Order")" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left"></i> Quay lại đơn hàng của tôi
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

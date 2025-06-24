@@ -1,0 +1,257 @@
+@model CPTStore.Models.Product
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Product")">Sản phẩm</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-5">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl" class="img-fluid rounded" alt="@Model.Name">
+            }
+            else
+            {
+                <img src="/images/no-image.png" class="img-fluid rounded" alt="No Image">
+            }
+        </div>
+        <div class="col-md-7">
+            <h1>@Model.Name</h1>
+            <p class="text-muted">Danh mục: <a href="@Url.Action("Index", "Product", new { categoryId = Model.CategoryId })">@Model.Category?.Name</a></p>
+            
+            <div class="mb-3">
+                @if (ViewBag.AverageRating > 0)
+                {
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= Math.Round(ViewBag.AverageRating))
+                                {
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-star text-warning"></i>
+                                }
+                            }
+                        </div>
+                        <span>(@ViewBag.AverageRating.ToString("0.0")) - @ViewBag.ReviewCount đánh giá</span>
+                    </div>
+                }
+                else
+                {
+                    <p>Chưa có đánh giá</p>
+                }
+            </div>
+
+            <h3 class="text-danger fw-bold">@Model.Price.ToString("N0") VNĐ</h3>
+            
+            <p>@Model.ShortDescription</p>
+            
+            <form method="post" action="@Url.Action("AddToCart", "Product")" class="mb-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <label for="quantity" class="col-form-label">Số lượng:</label>
+                    </div>
+                    <div class="col-auto">
+                        <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1" max="10">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-success"><i class="bi bi-cart-plus"></i> Thêm vào giỏ hàng</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="mt-4">
+                <h4>Mô tả chi tiết</h4>
+                <div class="card">
+                    <div class="card-body">
+                        @Html.Raw(Model.Description)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.RelatedProducts != null && ViewBag.RelatedProducts.Count > 0)
+    {
+        <div class="mt-5">
+            <h3>Sản phẩm liên quan</h3>
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+                @foreach (var product in ViewBag.RelatedProducts)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            @if (!string.IsNullOrEmpty(product.ImageUrl))
+                            {
+                                <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 180px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <img src="/images/no-image.png" class="card-img-top" alt="No Image" style="height: 180px; object-fit: cover;">
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@product.Name</h5>
+                                <p class="card-text fw-bold text-danger">@product.Price.ToString("N0") VNĐ</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="btn btn-sm btn-primary w-100">Xem chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (ViewBag.RecommendedProducts != null && ViewBag.RecommendedProducts.Count > 0)
+    {
+        <div class="mt-5">
+            <h3>Có thể bạn sẽ thích</h3>
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+                @foreach (var product in ViewBag.RecommendedProducts)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            @if (!string.IsNullOrEmpty(product.ImageUrl))
+                            {
+                                <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 180px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <img src="/images/no-image.png" class="card-img-top" alt="No Image" style="height: 180px; object-fit: cover;">
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@product.Name</h5>
+                                <p class="card-text fw-bold text-danger">@product.Price.ToString("N0") VNĐ</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="btn btn-sm btn-primary w-100">Xem chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="mt-5">
+        <h3>Đánh giá sản phẩm</h3>
+        @if (ViewBag.Reviews != null && ViewBag.Reviews.Count > 0)
+        {
+            <div class="card mb-4">
+                <div class="card-body">
+                    @foreach (var review in ViewBag.Reviews)
+                    {
+                        <div class="d-flex mb-4">
+                            <div class="flex-shrink-0">
+                                <img src="/images/user-avatar.png" alt="User" class="rounded-circle" width="50">
+                            </div>
+                            <div class="ms-3">
+                                <div class="fw-bold">@review.UserName</div>
+                                <div class="mb-1">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= review.Rating)
+                                        {
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-star text-warning"></i>
+                                        }
+                                    }
+                                    <small class="text-muted ms-2">@review.CreatedAt.ToString("dd/MM/yyyy")</small>
+                                </div>
+                                <p>@review.Comment</p>
+                            </div>
+                        </div>
+                        @if (review != ViewBag.Reviews.Last())
+                        {
+                            <hr>
+                        }
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <p>Chưa có đánh giá nào cho sản phẩm này.</p>
+        }
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Viết đánh giá</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="@Url.Action("AddReview", "Product")">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ProductId" value="@Model.Id" />
+                    
+                    <div class="mb-3">
+                        <label for="Rating" class="form-label">Đánh giá</label>
+                        <div>
+                            <div class="rating">
+                                @for (int i = 5; i >= 1; i--)
+                                {
+                                    <input type="radio" name="Rating" value="@i" id="rating-@i">
+                                    <label for="rating-@i"></label>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="Comment" class="form-label">Nhận xét</label>
+                        <textarea class="form-control" id="Comment" name="Comment" rows="3" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+        
+        .rating input {
+            display: none;
+        }
+        
+        .rating label {
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            margin-right: 5px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ccc' class='bi bi-star-fill' viewBox='0 0 16 16'%3E%3Cpath d='M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 30px;
+        }
+        
+        .rating input:checked ~ label,
+        .rating label:hover,
+        .rating label:hover ~ label {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffc107' class='bi bi-star-fill' viewBox='0 0 16 16'%3E%3Cpath d='M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z'/%3E%3C/svg%3E");
+        }
+    </style>
+}

@@ -1,0 +1,97 @@
+@model IEnumerable<CPTStore.Models.Product>
+
+@{
+    ViewData["Title"] = "Sản phẩm";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Sản phẩm</h1>
+            @if (!string.IsNullOrEmpty(ViewBag.CategoryName))
+            {
+                <h4>Danh mục: @ViewBag.CategoryName</h4>
+            }
+            @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+            {
+                <h4>Kết quả tìm kiếm cho: "@ViewBag.SearchTerm"</h4>
+            }
+        </div>
+        <div class="col-md-4">
+            <form method="get" action="@Url.Action("Index", "Product")" class="d-flex">
+                <input type="text" name="searchTerm" class="form-control me-2" placeholder="Tìm kiếm sản phẩm..." value="@ViewBag.SearchTerm" />
+                <button type="submit" class="btn btn-primary">Tìm</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Danh mục</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="@Url.Action("Index", "Product")" class="list-group-item list-group-item-action @(ViewBag.CategoryId == null ? "active" : "")">Tất cả sản phẩm</a>
+                    @foreach (var category in ViewBag.Categories)
+                    {
+                        <a href="@Url.Action("Index", "Product", new { categoryId = category.Id })" 
+                           class="list-group-item list-group-item-action @(ViewBag.CategoryId == category.Id ? "active" : "")">
+                            @category.Name
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                @foreach (var product in Model)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            @if (!string.IsNullOrEmpty(product.ImageUrl))
+                            {
+                                <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <img src="/images/no-image.png" class="card-img-top" alt="No Image" style="height: 200px; object-fit: cover;">
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@product.Name</h5>
+                                <p class="card-text text-truncate">@product.ShortDescription</p>
+                                <p class="card-text fw-bold text-danger">@product.Price.ToString("N0") VNĐ</p>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between">
+                                <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="btn btn-sm btn-primary">Chi tiết</a>
+                                <form method="post" action="@Url.Action("AddToCart", "Product")">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="productId" value="@product.Id" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit" class="btn btn-sm btn-success">Thêm vào giỏ</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", "Product", new { categoryId = ViewBag.CategoryId, searchTerm = ViewBag.SearchTerm, page = i })">@i</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            }
+        </div>
+    </div>
+</div>

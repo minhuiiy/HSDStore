@@ -1,0 +1,196 @@
+@model CPTStore.Models.Discount
+@{
+    ViewData["Title"] = "Chi tiết mã giảm giá";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Chi tiết mã giảm giá</h1>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Chỉnh sửa
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin mã giảm giá</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Mã giảm giá</h6>
+                        <p class="badge bg-primary fs-6">@Model.Code</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Trạng thái</h6>
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">Đang hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Không hoạt động</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Mô tả</h6>
+                        <p>@Model.Description</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Loại giảm giá</h6>
+                        <p>
+                            @if (Model.DiscountType == CPTStore.Models.DiscountType.Percentage)
+                            {
+                                <span>Theo phần trăm (%)</span>
+                            }
+                            else
+                            {
+                                <span>Số tiền cố định</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Giá trị</h6>
+                        <p>
+                            @if (Model.DiscountType == CPTStore.Models.DiscountType.Percentage)
+                            {
+                                <span>@Model.Value%</span>
+                            }
+                            else
+                            {
+                                <span>@Model.Value.ToString("#,##0") VNĐ</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Giảm giá tối đa</h6>
+                        <p>
+                            @if (Model.MaximumDiscountAmount.HasValue && Model.MaximumDiscountAmount.Value > 0)
+                            {
+                                <span>@Model.MaximumDiscountAmount.Value.ToString("#,##0") VNĐ</span>
+                            }
+                            else
+                            {
+                                <span>Không giới hạn</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Giá trị đơn hàng tối thiểu</h6>
+                        <p>
+                            @if (Model.MinimumOrderAmount > 0)
+                            {
+                                <span>@Model.MinimumOrderAmount.ToString("#,##0") VNĐ</span>
+                            }
+                            else
+                            {
+                                <span>Không giới hạn</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Thời gian hiệu lực</h6>
+                        <p>
+                            @Model.StartDate.ToString("dd/MM/yyyy HH:mm")
+                            @if (Model.EndDate.HasValue)
+                            {
+                                <span> - @Model.EndDate.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                            }
+                            else
+                            {
+                                <span> - Không giới hạn</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Giới hạn sử dụng</h6>
+                        <p>
+                            @if (Model.UsageLimit.HasValue && Model.UsageLimit.Value > 0)
+                            {
+                                <span>@Model.UsageCount / @Model.UsageLimit.Value lần</span>
+                            }
+                            else
+                            {
+                                <span>@Model.UsageCount lần (không giới hạn)</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Ngày tạo</h6>
+                        <p>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Chỉnh sửa
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại danh sách
+                </a>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <i class="bi bi-trash"></i> Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa mã giảm giá <strong>@Model.Code</strong>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

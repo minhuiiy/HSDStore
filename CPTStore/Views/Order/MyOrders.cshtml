@@ -1,0 +1,141 @@
+@model IEnumerable<CPTStore.Models.Order>
+@using CPTStore.Models
+
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+}
+
+<div class="container mt-4">
+    <h1>Đơn hàng của tôi</h1>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Tài khoản của tôi</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="@Url.Action("Profile", "Account")" class="list-group-item list-group-item-action">
+                        <i class="bi bi-person me-2"></i> Thông tin tài khoản
+                    </a>
+                    <a href="@Url.Action("MyOrders", "Order")" class="list-group-item list-group-item-action active">
+                        <i class="bi bi-box me-2"></i> Đơn hàng của tôi
+                    </a>
+                    <a href="@Url.Action("ChangePassword", "Account")" class="list-group-item list-group-item-action">
+                        <i class="bi bi-key me-2"></i> Đổi mật khẩu
+                    </a>
+                    <a href="@Url.Action("Addresses", "Account")" class="list-group-item list-group-item-action">
+                        <i class="bi bi-geo-alt me-2"></i> Sổ địa chỉ
+                    </a>
+                    <a href="@Url.Action("Wishlist", "Account")" class="list-group-item list-group-item-action">
+                        <i class="bi bi-heart me-2"></i> Sản phẩm yêu thích
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewBag.Status == null ? "active" : "")" href="@Url.Action("MyOrders", "Order")">Tất cả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewBag.Status == "Pending" ? "active" : "")" href="@Url.Action("MyOrders", "Order", new { status = "Pending" })">Chờ xác nhận</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewBag.Status == "Processing" ? "active" : "")" href="@Url.Action("MyOrders", "Order", new { status = "Processing" })">Đang xử lý</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewBag.Status == "Shipped" ? "active" : "")" href="@Url.Action("MyOrders", "Order", new { status = "Shipped" })">Đang giao</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewBag.Status == "Completed" ? "active" : "")" href="@Url.Action("MyOrders", "Order", new { status = "Completed" })">Hoàn thành</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewBag.Status == "Cancelled" ? "active" : "")" href="@Url.Action("MyOrders", "Order", new { status = "Cancelled" })">Đã hủy</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn hàng</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thanh toán</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model)
+                                    {
+                                        <tr>
+                                            <td><a href="@Url.Action("Details", "Order", new { id = order.Id })" class="text-decoration-none">#@order.OrderReference</a></td>
+                                            <td>@(order.OrderDate != default(DateTime) ? order.OrderDate.ToString("dd/MM/yyyy HH:mm") : order.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</td>
+                                            <td>@order.TotalAmount.ToString("N0") VNĐ</td>
+                                            <td>
+                                                <span class="badge @(order.Status == OrderStatus.Delivered ? "bg-success" : order.Status == OrderStatus.Cancelled ? "bg-danger" : order.Status == OrderStatus.Shipped ? "bg-info" : order.Status == OrderStatus.Processing ? "bg-primary" : "bg-warning")">@order.Status</span>
+                                            </td>
+                                            <td>
+                                                <span class="@(order.PaymentStatus == PaymentStatus.Completed ? "text-success" : "text-warning")">@(order.PaymentStatus == PaymentStatus.Completed ? "Đã thanh toán" : "Chưa thanh toán")</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="@Url.Action("Details", "Order", new { id = order.Id })" class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                                                    @if (order.Status == OrderStatus.Pending || order.Status == OrderStatus.Processing)
+                                                    {
+                                                        <form method="post" action="@Url.Action("CancelOrder", "Order")" class="d-inline">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="orderId" value="@order.Id" />
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
+                                                                Hủy
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @if (ViewBag.TotalPages > 1)
+                        {
+                            <div class="d-flex justify-content-center mt-4">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination">
+                                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                                        {
+                                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                                <a class="page-link" href="@Url.Action("MyOrders", "Order", new { status = ViewBag.Status, page = i })">@i</a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </nav>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-box" style="font-size: 4rem;"></i>
+                            <h4 class="mt-3">Không có đơn hàng nào</h4>
+                            <p class="text-muted">Bạn chưa có đơn hàng nào trong mục này</p>
+                            <a href="@Url.Action("Index", "Product")" class="btn btn-primary mt-2">
+                                <i class="bi bi-shop"></i> Mua sắm ngay
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

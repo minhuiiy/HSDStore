@@ -1,0 +1,54 @@
+@{
+    ViewData["Title"] = "Báo cáo";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Báo cáo</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Báo cáo doanh thu</h6>
+                </div>
+                <div class="card-body">
+                    <p>Xem báo cáo chi tiết về doanh thu theo thời gian.</p>
+                    <a asp-action="Sales" class="btn btn-primary">
+                        <i class="bi bi-graph-up"></i> Xem báo cáo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Báo cáo sản phẩm</h6>
+                </div>
+                <div class="card-body">
+                    <p>Xem báo cáo về sản phẩm bán chạy và tồn kho.</p>
+                    <a asp-action="Products" class="btn btn-primary">
+                        <i class="bi bi-box-seam"></i> Xem báo cáo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Báo cáo khách hàng</h6>
+                </div>
+                <div class="card-body">
+                    <p>Xem báo cáo về khách hàng thân thiết và hành vi mua sắm.</p>
+                    <a asp-action="Customers" class="btn btn-primary">
+                        <i class="bi bi-people"></i> Xem báo cáo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

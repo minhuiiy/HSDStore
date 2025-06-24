@@ -1,0 +1,148 @@
+@model IEnumerable<CPTStore.Models.Discount>
+@{
+    ViewData["Title"] = "Quản lý mã giảm giá";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý mã giảm giá</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Thêm mã giảm giá mới
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Tìm kiếm và lọc</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <input type="text" name="searchTerm" class="form-control" placeholder="Tìm kiếm mã giảm giá..." value="@ViewBag.SearchTerm" />
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="isActive" class="form-select">
+                        <option value="">-- Trạng thái --</option>
+                        <option value="true" selected="@(ViewBag.IsActive == true)">Đang hoạt động</option>
+                        <option value="false" selected="@(ViewBag.IsActive == false)">Không hoạt động</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                </div>
+                <div class="col-md-2">
+                    <a asp-action="Index" class="btn btn-secondary w-100">Đặt lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách mã giảm giá</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Mô tả</th>
+                            <th>Loại</th>
+                            <th>Giá trị</th>
+                            <th>Thời gian</th>
+                            <th>Sử dụng</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Code</td>
+                                <td>@item.Description</td>
+                                <td>
+                                    @if (item.DiscountType == CPTStore.Models.DiscountType.Percentage)
+                                    {
+                                        <span>Phần trăm</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Số tiền cố định</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.DiscountType == CPTStore.Models.DiscountType.Percentage)
+                                    {
+                                        <span>@item.Value%</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@item.Value.ToString("N0") VNĐ</span>
+                                    }
+                                </td>
+                                <td>
+                                    <small>Từ: @item.StartDate.ToString("dd/MM/yyyy")</small><br />
+                                    <small>Đến: @(item.EndDate.HasValue ? item.EndDate.Value.ToString("dd/MM/yyyy") : "Không giới hạn")</small>
+                                </td>
+                                <td>
+                                    <span>@item.UsageCount / @(item.UsageLimit.HasValue ? item.UsageLimit.Value.ToString() : "∞")</span>
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success">Hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Không hoạt động</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">
+                                            <i class="bi bi-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                        <form asp-action="ToggleStatus" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn @(item.IsActive ? "btn-warning" : "btn-success") btn-sm">
+                                                <i class="bi @(item.IsActive ? "bi-toggle-off" : "bi-toggle-on")"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchTerm="@ViewBag.SearchTerm" asp-route-isActive="@ViewBag.IsActive" asp-route-pageSize="@ViewBag.PageSize">@i</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>

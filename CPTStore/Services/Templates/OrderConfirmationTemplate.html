@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Xác nhận đơn hàng</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        .order-info { margin-bottom: 20px; }
+        .customer-info { margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .total-row { font-weight: bold; }
+        .footer { margin-top: 50px; text-align: center; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class='header'>
+        <div class='title'>XÁC NHẬN ĐƠN HÀNG</div>
+        <div>CPT Store</div>
+    </div>
+
+    <!-- Order Info -->
+    <div class='order-info'>
+        <p><strong>Mã đơn hàng:</strong> {{OrderNumber}}</p>
+        <p><strong>Ngày đặt hàng:</strong> {{OrderDate}}</p>
+        <p><strong>Trạng thái đơn hàng:</strong> {{OrderStatus}}</p>
+        <p><strong>Phương thức thanh toán:</strong> {{PaymentMethod}}</p>
+        <p><strong>Trạng thái thanh toán:</strong> {{PaymentStatus}}</p>
+    </div>
+
+    <!-- Customer Info -->
+    <div class='customer-info'>
+        <p><strong>Thông tin giao hàng:</strong></p>
+        <p>Tên: {{CustomerName}}</p>
+        <p>Điện thoại: {{CustomerPhone}}</p>
+        <p>Địa chỉ: {{CustomerAddress}}</p>
+    </div>
+
+    <!-- Order Items -->
+    <table>
+        <tr>
+            <th>STT</th>
+            <th>Sản phẩm</th>
+            <th>Đơn giá</th>
+            <th>Số lượng</th>
+            <th>Thành tiền</th>
+        </tr>
+        {{OrderItems}}
+        <!-- Totals -->
+        <tr class='total-row'>
+            <td colspan='4' style='text-align: right;'>Tổng tiền hàng:</td>
+            <td>{{TotalAmount}} VNĐ</td>
+        </tr>
+        {{DiscountSection}}
+    </table>
+
+    <!-- Footer -->
+    <div class='footer'>
+        <p>Cảm ơn quý khách đã mua hàng tại CPT Store!</p>
+        <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email support@cptstore.com hoặc số điện thoại 1900 1234.</p>
+        <p>Xác nhận đơn hàng được tạo ngày {{CurrentDateTime}}</p>
+    </div>
+
+</body>
+</html>

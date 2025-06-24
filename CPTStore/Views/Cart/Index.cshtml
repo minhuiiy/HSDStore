@@ -1,0 +1,147 @@
+@model CPTStore.Models.Cart
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+
+<div class="container mt-4">
+    <h1>Giỏ hàng</h1>
+
+    @if (Model != null && Model.CartItems != null && Model.CartItems.Any())
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th class="text-center">Đơn giá</th>
+                                    <th class="text-center">Số lượng</th>
+                                    <th class="text-end">Thành tiền</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.CartItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (!string.IsNullOrEmpty(item.Product?.ImageUrl))
+                                                {
+                                                    <img src="@item.Product.ImageUrl" alt="@item.Product.Name" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                                }
+                                                else
+                                                {
+                                                    <img src="/images/no-image.png" alt="No Image" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                                }
+                                                <div>
+                                                    <h5 class="mb-0"><a href="@Url.Action("Details", "Product", new { id = item.ProductId })" class="text-decoration-none">@item.Product?.Name</a></h5>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center align-middle">@item.Product?.Price.ToString("N0") VNĐ</td>
+                                        <td class="text-center align-middle">
+                                            <form method="post" action="@Url.Action("UpdateQuantity", "Cart")" class="d-flex justify-content-center">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="cartItemId" value="@item.Id">
+                                                <div class="input-group" style="width: 120px;">
+                                                    <button class="btn btn-outline-secondary" type="submit" name="action" value="decrease">-</button>
+                                                    <input type="text" class="form-control text-center" value="@item.Quantity" readonly>
+                                                    <button class="btn btn-outline-secondary" type="submit" name="action" value="increase">+</button>
+                                                </div>
+                                            </form>
+                                        </td>
+                                        <td class="text-end align-middle fw-bold">@(item.Product != null ? (item.Product.Price * item.Quantity).ToString("N0") : "0") VNĐ</td>
+                                        <td class="align-middle">
+                                            <form method="post" action="@Url.Action("RemoveFromCart", "Cart")">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="cartItemId" value="@item.Id">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <a href="@Url.Action("Index", "Product")" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left"></i> Tiếp tục mua sắm
+                    </a>
+                    <form method="post" action="@Url.Action("ClearCart", "Cart")" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger ms-2">
+                            <i class="bi bi-trash"></i> Xóa giỏ hàng
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Tóm tắt đơn hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tạm tính:</span>
+                            <span class="fw-bold">@Model.TotalAmount.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) VNĐ</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Phí vận chuyển:</span>
+                            <span class="fw-bold">@(Model.ShippingFee > 0 ? Model.ShippingFee.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) + " VNĐ" : "Miễn phí")</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="fw-bold">Tổng cộng:</span>
+                            <span class="fw-bold text-danger fs-5">@((Model.TotalAmount + Model.ShippingFee).ToString("N0", System.Globalization.CultureInfo.InvariantCulture)) VNĐ</span>
+                        </div>
+                        <a href="@Url.Action("Checkout", "Order")" class="btn btn-success w-100">
+                            <i class="bi bi-credit-card"></i> Tiến hành thanh toán
+                        </a>
+                    </div>
+                </div>
+
+                @if (ViewBag.CouponMessage != null)
+                {
+                    <div class="alert @(ViewBag.CouponSuccess ? "alert-success" : "alert-danger") mt-3">
+                        @ViewBag.CouponMessage
+                    </div>
+                }
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Mã giảm giá</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="@Url.Action("ApplyCoupon", "Cart")">
+                            @Html.AntiForgeryToken()
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="couponCode" placeholder="Nhập mã giảm giá">
+                                <button class="btn btn-outline-primary" type="submit">Áp dụng</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-cart-x" style="font-size: 5rem;"></i>
+                <h3 class="mt-3">Giỏ hàng của bạn đang trống</h3>
+                <p class="text-muted">Hãy thêm sản phẩm vào giỏ hàng để tiến hành mua sắm</p>
+                <a href="@Url.Action("Index", "Product")" class="btn btn-primary mt-3">
+                    <i class="bi bi-shop"></i> Tiếp tục mua sắm
+                </a>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,151 @@
+@model IEnumerable<CPTStore.Models.Category>
+@{
+    ViewData["Title"] = "Quản lý danh mục";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý danh mục</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Thêm danh mục mới
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Tìm kiếm</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3">
+                <div class="col-md-9">
+                    <div class="input-group">
+                        <span class="input-group-text">Tìm kiếm</span>
+                        <input type="text" name="searchTerm" class="form-control" placeholder="Tên danh mục..." value="@ViewBag.SearchTerm">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Tìm kiếm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách danh mục</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="categoriesTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Hình ảnh</th>
+                            <th>Tên danh mục</th>
+                            <th>Mô tả</th>
+                            <th>Số sản phẩm</th>
+                            <th>Hiển thị</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.Name" class="img-thumbnail" style="max-width: 50px; max-height: 50px;" />
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Không có ảnh</span>
+                                    }
+                                </td>
+                                <td>@item.Name</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Description) && item.Description.Length > 50)
+                                    {
+                                        @(item.Description.Substring(0, 50) + "...")
+                                    }
+                                    else
+                                    {
+                                        @(item.Description ?? "Không có mô tả")
+                                    }
+                                </td>
+                                <td class="text-center">@(item.Products?.Count ?? 0)</td>
+                                <td class="text-center">
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success">Hiển thị</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Ẩn</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Chỉnh sửa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Chi tiết">
+                                            <i class="bi bi-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @{
+                var prevDisabled = ViewBag.CurrentPage == 1 ? "disabled" : "";
+                var nextDisabled = ViewBag.CurrentPage >= ViewBag.TotalPages ? "disabled" : "";
+            }
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @prevDisabled">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)" asp-route-searchTerm="@ViewBag.SearchTerm" asp-route-pageSize="@ViewBag.PageSize">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchTerm="@ViewBag.SearchTerm" asp-route-pageSize="@ViewBag.PageSize">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @nextDisabled">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)" asp-route-searchTerm="@ViewBag.SearchTerm" asp-route-pageSize="@ViewBag.PageSize">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Khởi tạo tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    </script>
+}
