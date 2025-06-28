@@ -1,0 +1,40 @@
+@{
+    ViewData["Title"] = "Quản lý tồn kho";
+}
+
+<div class="container mt-4">
+    <h1>Quản lý tồn kho</h1>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    
+    <div class="card">
+        <div class="card-header">
+            <h5>Công cụ quản lý tồn kho</h5>
+        </div>
+        <div class="card-body">
+            <p>Sử dụng các công cụ dưới đây để quản lý tồn kho sản phẩm:</p>
+            
+            <a asp-action="SynchronizeStock" class="btn btn-primary">
+                <i class="fas fa-sync"></i> Đồng bộ hóa tồn kho
+            </a>
+            <p class="mt-2 text-muted">Đồng bộ hóa số lượng tồn kho giữa bảng Product và bảng Inventory</p>
+            
+            <a asp-action="FixStockSynchronization" class="btn btn-warning mt-3">
+                <i class="fas fa-tools"></i> Sửa lỗi đồng bộ hóa tồn kho
+            </a>
+            <p class="mt-2 text-muted">Kiểm tra và sửa lỗi không nhất quán giữa bảng Product và bảng Inventory</p>
+        </div>
+    </div>
+</div>

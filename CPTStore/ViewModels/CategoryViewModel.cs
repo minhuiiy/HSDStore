@@ -24,7 +24,7 @@ namespace CPTStore.ViewModels
         public string? Search { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
-        public required string SortBy { get; set; } = "newest";
+        public string SortBy { get; set; } = "newest";
         public bool InStock { get; set; } = false;
     }
 }

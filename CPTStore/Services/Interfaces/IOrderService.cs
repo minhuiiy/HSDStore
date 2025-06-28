@@ -20,6 +20,7 @@ namespace CPTStore.Services.Interfaces
         Task UpdateOrderStatusAsync(int id, OrderStatus status);
         Task UpdatePaymentStatusAsync(int id, PaymentStatus status, string? transactionId = null);
         Task<bool> CancelOrderAsync(int id);
+        Task<bool> CancelOrderAsync(int id, string userId);
         Task DeleteOrderAsync(int id);
         Task<byte[]> GenerateInvoicePdfAsync(int orderId);
         Task SendOrderConfirmationEmailAsync(int orderId);

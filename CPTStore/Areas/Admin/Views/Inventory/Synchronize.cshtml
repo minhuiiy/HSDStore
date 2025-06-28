@@ -1,0 +1,42 @@
+@{
+    ViewData["Title"] = "Đồng bộ hóa tồn kho";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Đồng bộ hóa tồn kho</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Inventory" asp-action="Index">Quản lý tồn kho</a></li>
+        <li class="breadcrumb-item active">Đồng bộ hóa</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-arrow-repeat me-1"></i>
+            Xác nhận đồng bộ hóa tồn kho
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <h5><i class="bi bi-info-circle"></i> Thông tin quan trọng</h5>
+                <p>Quá trình đồng bộ hóa tồn kho sẽ thực hiện các thao tác sau:</p>
+                <ul>
+                    <li>Cập nhật số lượng tồn kho trong bảng <strong>Product</strong> (trường <code>Stock</code>) từ bảng <strong>Inventory</strong> (trường <code>Quantity</code>)</li>
+                    <li>Tạo bản ghi <strong>Inventory</strong> mới cho các sản phẩm chưa có thông tin tồn kho</li>
+                </ul>
+                <p>Quá trình này giúp đảm bảo tính nhất quán của dữ liệu giữa hai bảng và khắc phục các vấn đề về tồn kho.</p>
+            </div>
+
+            <form asp-action="Synchronize" method="post">
+                <input type="hidden" name="confirm" value="true" />
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-arrow-repeat"></i> Xác nhận đồng bộ hóa
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

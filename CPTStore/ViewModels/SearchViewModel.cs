@@ -9,7 +9,7 @@ namespace CPTStore.ViewModels
         public string? SearchTerm { get; set; }
         
         // Alias cho SearchTerm để tương thích với tệp Search.cshtml
-        public string? Query { get; set; }
+        public string? Query { get => SearchTerm; set => SearchTerm = value; }
         
         // Danh sách sản phẩm kết quả
         public List<Product>? Products { get; set; }
@@ -27,7 +27,7 @@ namespace CPTStore.ViewModels
         public int? CategoryId { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
-        public required string SortBy { get; set; } = "relevance";
+        public string SortBy { get; set; } = "relevance";
         public bool InStock { get; set; } = false;
         
         // Tìm kiếm liên quan

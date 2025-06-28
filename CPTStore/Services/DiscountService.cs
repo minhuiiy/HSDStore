@@ -5,14 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CPTStore.Services
 {
-    public class DiscountService : IDiscountService
+    public class DiscountService(ApplicationDbContext _context) : IDiscountService
     {
-        private readonly ApplicationDbContext _context;
-
-        public DiscountService(ApplicationDbContext context)
-        {
-            _context = context;
-        }
 
         public async Task<IEnumerable<Discount>> GetAllDiscountsAsync()
         {
@@ -34,24 +28,96 @@ namespace CPTStore.Services
 
         public async Task<int> CreateDiscountAsync(Discount discount)
         {
-            _context.Discounts.Add(discount);
-            await _context.SaveChangesAsync();
-            return discount.Id;
+            try
+            {
+                if (discount is null)
+                {
+                    throw new ArgumentNullException(nameof(discount), "Discount không được để trống");
+                }
+
+                // Đảm bảo CreatedAt luôn là DateTime.UtcNow
+                discount.CreatedAt = DateTime.UtcNow;
+                discount.UpdatedAt = null;
+
+                _context.Discounts.Add(discount);
+                await _context.SaveChangesAsync();
+                return discount.Id;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi tạo mã giảm giá: {ex.Message}");
+                if (ex.InnerException is not null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw;
+            }
         }
 
         public async Task UpdateDiscountAsync(Discount discount)
         {
-            _context.Discounts.Update(discount);
-            await _context.SaveChangesAsync();
+            try
+            {
+                if (discount is null)
+                {
+                    throw new ArgumentNullException(nameof(discount), "Discount không được để trống");
+                }
+
+                discount.UpdatedAt = DateTime.UtcNow;
+                _context.Discounts.Update(discount);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi cập nhật mã giảm giá: {ex.Message}");
+                if (ex.InnerException is not null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw;
+            }
         }
 
         public async Task DeleteDiscountAsync(int id)
         {
-            var discount = await _context.Discounts.FindAsync(id);
-            if (discount != null)
+            try
             {
+                if (id <= 0)
+                {
+                    throw new ArgumentException("ID không hợp lệ");
+                }
+
+                var discount = await _context.Discounts.FindAsync(id);
+                if (discount is null)
+                {
+                    throw new ArgumentException("Mã giảm giá không tồn tại");
+                }
+
+                // Kiểm tra xem mã giảm giá có đang được sử dụng không
+                var savedDiscounts = await _context.SavedDiscounts
+                    .Where(sd => sd.DiscountId == id)
+                    .ToListAsync();
+
+                if (savedDiscounts.Count > 0)
+                {
+                    // Xóa tất cả các mã giảm giá đã lưu liên quan
+                    _context.SavedDiscounts.RemoveRange(savedDiscounts);
+                }
+
                 _context.Discounts.Remove(discount);
                 await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi xóa mã giảm giá: {ex.Message}");
+                if (ex.InnerException is not null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw;
             }
         }
 
@@ -93,12 +159,12 @@ namespace CPTStore.Services
         public async Task<decimal> CalculateDiscountAmountAsync(string code, decimal orderAmount)
         {
             var discount = await GetDiscountByCodeAsync(code);
-            if (discount == null || !await IsDiscountValidAsync(code, orderAmount))
+            if (discount is null || !await IsDiscountValidAsync(code, orderAmount))
             {
                 return 0;
             }
 
-            decimal discountAmount = 0;
+            decimal discountAmount;
 
             if (discount.DiscountType == DiscountType.Percentage)
             {
@@ -128,12 +194,33 @@ namespace CPTStore.Services
 
         public async Task IncrementUsageCountAsync(int id)
         {
-            var discount = await _context.Discounts.FindAsync(id);
-            if (discount != null)
+            try
             {
+                if (id <= 0)
+                {
+                    throw new ArgumentException("ID không hợp lệ");
+                }
+
+                var discount = await _context.Discounts.FindAsync(id);
+                if (discount is null)
+                {
+                    throw new ArgumentException("Mã giảm giá không tồn tại");
+                }
+
                 discount.UsageCount++;
+                discount.UpdatedAt = DateTime.UtcNow;
                 _context.Discounts.Update(discount);
                 await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi tăng số lần sử dụng mã giảm giá: {ex.Message}");
+                if (ex.InnerException is not null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw;
             }
         }
 

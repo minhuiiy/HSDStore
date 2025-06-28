@@ -1,8 +1,17 @@
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CPTStore.Models
 {
+    public enum MembershipLevel
+    {
+        Regular = 0,    // Thành viên thường
+        Silver = 1,     // Thành viên bạc (trên 2.000.000 VNĐ)
+        Gold = 2,       // Thành viên vàng (trên 5.000.000 VNĐ)
+        Diamond = 3     // Thành viên kim cương (trên 10.000.000 VNĐ)
+    }
+
     public class ApplicationUser : IdentityUser
     {
         [StringLength(100)]
@@ -32,6 +41,13 @@ namespace CPTStore.Models
         
         // Trạng thái hoạt động của tài khoản
         public bool IsActive { get; set; } = true;
+
+        // Cấp độ thành viên
+        public MembershipLevel MembershipLevel { get; set; } = MembershipLevel.Regular;
+
+        // Tổng giá trị đơn hàng đã mua
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal TotalPurchases { get; set; } = 0;
 
         // Navigation properties
         public ICollection<Order>? Orders { get; set; }

@@ -13,11 +13,6 @@ namespace CPTStore.Services
     /// </summary>
     public class CartService : ICartService
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IDiscountService _discountService;
-        private readonly ICartItemRepository _cartItemRepository;
-        private readonly IMapper _mapper;
-
         public CartService(
             ApplicationDbContext context, 
             IDiscountService discountService,
@@ -30,6 +25,38 @@ namespace CPTStore.Services
             _mapper = mapper;
         }
 
+        private readonly ApplicationDbContext _context;
+        private readonly IDiscountService _discountService;
+        private readonly ICartItemRepository _cartItemRepository;
+        private readonly IMapper _mapper;
+
+        /// <summary>
+        /// Lấy thông tin giỏ hàng của người dùng
+        /// </summary>
+        /// <param name="userId">ID của người dùng</param>
+        /// <returns>Đối tượng Cart</returns>
+        public async Task<Cart> GetCartAsync(string userId)
+        {
+            var cartItems = await _cartItemRepository.GetCartItemsByUserIdAsync(userId);
+            var cart = new Cart
+            {
+                UserId = userId,
+                CartItems = cartItems
+            };
+            
+            // Tính phí vận chuyển (có thể thay đổi theo logic nghiệp vụ)
+            cart.ShippingFee = cart.TotalAmount > 500000 ? 0 : 30000;
+            
+            // Lấy thông tin giảm giá nếu có
+            var cartDiscount = await _context.CartDiscounts.FirstOrDefaultAsync(cd => cd.UserId == userId);
+            if (cartDiscount != null)
+            {
+                cart.Discount = cartDiscount.DiscountAmount;
+            }
+            
+            return cart;
+        }
+        
         /// <summary>
         /// Lấy tất cả các CartItem của một người dùng
         /// </summary>
@@ -117,7 +144,16 @@ namespace CPTStore.Services
                     // Kiểm tra sản phẩm có sẵn để bán không
                     if (!product.IsAvailable)
                     {
+                        Console.WriteLine($"Sản phẩm {product.Name} (ID: {product.Id}) không có sẵn để bán (IsAvailable = false)");
                         throw new InvalidOperationException("Sản phẩm hiện không có sẵn để bán");
+                    }
+                    
+                    // Kiểm tra lại tồn kho một lần nữa trước khi thêm vào giỏ hàng
+                    var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == productId);
+                    if (inventory is null || inventory.Quantity < quantity)
+                    {
+                        Console.WriteLine($"Sản phẩm {product.Name} (ID: {product.Id}) không đủ số lượng trong kho. Yêu cầu: {quantity}, Tồn kho: {inventory?.Quantity ?? 0}");
+                        throw new InvalidOperationException("Sản phẩm không đủ số lượng trong kho");
                     }
 
                     var newItem = new CartItem
@@ -194,7 +230,7 @@ namespace CPTStore.Services
 
                 // Kiểm tra sản phẩm có sẵn để bán không
                 var product = await _context.Products.FindAsync(cartItem.ProductId);
-                if (product != null && !product.IsAvailable)
+                if (product is not null && !product.IsAvailable)
                 {
                     throw new InvalidOperationException("Sản phẩm hiện không có sẵn để bán");
                 }
@@ -275,7 +311,7 @@ namespace CPTStore.Services
             // Lưu mã giảm giá vào session hoặc database
             // Ở đây giả định có một bảng lưu thông tin giảm giá tạm thời cho giỏ hàng
             var cartDiscount = await _context.CartDiscounts.FirstOrDefaultAsync(cd => cd.UserId == userId);
-            if (cartDiscount == null)
+            if (cartDiscount is null)
             {
                 _context.CartDiscounts.Add(new CartDiscount
                 {

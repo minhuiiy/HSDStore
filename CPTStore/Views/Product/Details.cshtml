@@ -1,4 +1,5 @@
 @model CPTStore.Models.Product
+@using System.Linq
 
 @{
     ViewData["Title"] = Model.Name;
@@ -58,7 +59,7 @@
             
             <p>@Model.ShortDescription</p>
             
-            <form method="post" action="@Url.Action("AddToCart", "Product")" class="mb-4">
+            <form method="post" action="@Url.Action("AddToCartPost", "Cart")" class="mb-4">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="productId" value="@Model.Id" />
                 <div class="row g-3 align-items-center">
@@ -178,7 +179,7 @@
                                 <p>@review.Comment</p>
                             </div>
                         </div>
-                        @if (review != ViewBag.Reviews.Last())
+                        @if (review != ViewBag.Reviews.LastOrDefault())
                         {
                             <hr>
                         }

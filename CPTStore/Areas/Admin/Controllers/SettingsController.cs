@@ -7,28 +7,32 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using System.Linq;
+using CPTStore.Services.Interfaces;
+using CPTStore.Models;
+using CPTStore.Areas.Admin.ViewModels;
+using AutoMapper;
 
 namespace CPTStore.Areas.Admin.Controllers
 {
-    public class SettingsController(IWebHostEnvironment webHostEnvironment, IConfiguration configuration) : AdminControllerBase
+    public class SettingsController(IWebHostEnvironment webHostEnvironment, IConfiguration configuration, ISettingsService settingsService, IMapper mapper) : AdminControllerBase
     {
         private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
         private readonly IConfiguration _configuration = configuration;
+        private readonly ISettingsService _settingsService = settingsService;
+        private readonly IMapper _mapper = mapper;
 
         // GET: Admin/Settings
         public IActionResult Index()
         {
             var settings = new SettingsViewModel
             {
-                StoreName = _configuration["StoreSettings:Name"] ?? string.Empty,
-                StoreEmail = _configuration["StoreSettings:Email"] ?? string.Empty,
-                StorePhone = _configuration["StoreSettings:Phone"] ?? string.Empty,
-                StoreAddress = _configuration["StoreSettings:Address"] ?? string.Empty,
-                CurrencySymbol = _configuration["StoreSettings:CurrencySymbol"] ?? string.Empty,
-                DefaultPageSize = int.Parse(_configuration["StoreSettings:DefaultPageSize"] ?? "10"),
-                EnableReviews = bool.Parse(_configuration["StoreSettings:EnableReviews"] ?? "true"),
-                EnableWishlist = bool.Parse(_configuration["StoreSettings:EnableWishlist"] ?? "true"),
-                EnableCompare = bool.Parse(_configuration["StoreSettings:EnableCompare"] ?? "true"),
+                // Cài đặt chung
+                StoreName = _configuration["StoreSettings:StoreName"] ?? "CPT Store",
+                StoreAddress = _configuration["StoreSettings:StoreAddress"] ?? string.Empty,
+                StorePhone = _configuration["StoreSettings:StorePhone"] ?? string.Empty,
+                StoreEmail = _configuration["StoreSettings:StoreEmail"] ?? string.Empty,
+                
+                // Cài đặt email
                 SmtpServer = _configuration["EmailSettings:SmtpServer"] ?? string.Empty,
                 SmtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"] ?? "587"),
                 SmtpUsername = _configuration["EmailSettings:Username"] ?? string.Empty,
@@ -176,16 +180,46 @@ namespace CPTStore.Areas.Admin.Controllers
             return RedirectToAction(nameof(Backup));
         }
 
-        // GET: Admin/Settings/Restore
+        // GET: Admin/Settings/OrderConfirmation
+        public async Task<IActionResult> OrderConfirmation()
+        {
+            var settings = await _settingsService.GetOrderConfirmationSettingsAsync();
+            var viewModel = _mapper.Map<OrderConfirmationSettingsViewModel>(settings);
+            return View(viewModel);
+        }
+
+        // POST: Admin/Settings/OrderConfirmation
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> OrderConfirmation(OrderConfirmationSettingsViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var settings = _mapper.Map<OrderConfirmationSettings>(viewModel);
+                    await _settingsService.SaveOrderConfirmationSettingsAsync(settings);
+                    TempData["SuccessMessage"] = "Cài đặt tự động xác nhận đơn hàng đã được lưu thành công.";
+                    return RedirectToAction(nameof(OrderConfirmation));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, $"Lỗi khi lưu cài đặt: {ex.Message}");
+                }
+            }
+
+            return View(viewModel);
+        }
+
         public IActionResult Restore()
         {
-            var backupDir = Path.Combine(_webHostEnvironment.ContentRootPath, "Backups");
-            var backupFiles = Directory.Exists(backupDir)
-                ? Directory.GetFiles(backupDir, "*.bak").ToList()
-                : new List<string>();
+            var backupFiles = Directory.GetFiles(Path.Combine(_webHostEnvironment.ContentRootPath, "Backups"), "*.bak")
+                .Select(f => new FileInfo(f))
+                .OrderByDescending(f => f.CreationTime)
+                .Select(f => f.Name)
+                .ToList();
 
-            ViewBag.BackupFiles = backupFiles;
-            return View();
+            return View(backupFiles);
         }
 
         // POST: Admin/Settings/RestoreBackup

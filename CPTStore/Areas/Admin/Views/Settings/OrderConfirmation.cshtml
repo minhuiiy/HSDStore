@@ -1,0 +1,110 @@
+@model CPTStore.Areas.Admin.ViewModels.OrderConfirmationSettingsViewModel
+
+@{
+    ViewData["Title"] = "Cài đặt tự động xác nhận đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Cài đặt tự động xác nhận đơn hàng</h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <form asp-action="OrderConfirmation" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group row">
+                            <div class="col-md-6 offset-md-3">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" asp-for="AutoConfirmEnabled" id="autoConfirmEnabled">
+                                    <label class="custom-control-label" asp-for="AutoConfirmEnabled"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label asp-for="ConfirmationDelayMinutes" class="col-md-3 col-form-label text-md-right"></label>
+                            <div class="col-md-6">
+                                <input asp-for="ConfirmationDelayMinutes" class="form-control" />
+                                <span asp-validation-for="ConfirmationDelayMinutes" class="text-danger"></span>
+                                <small class="form-text text-muted">Thời gian chờ trước khi tự động xác nhận đơn hàng sau khi đơn hàng được tạo.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-6 offset-md-3">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" asp-for="ExcludeCODOrders" id="excludeCODOrders">
+                                    <label class="custom-control-label" asp-for="ExcludeCODOrders"></label>
+                                    <small class="form-text text-muted">Nếu bật, đơn hàng thanh toán COD sẽ không được tự động xác nhận.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-6 offset-md-3">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" asp-for="ExcludeHighValueOrders" id="excludeHighValueOrders">
+                                    <label class="custom-control-label" asp-for="ExcludeHighValueOrders"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row" id="highValueThresholdGroup">
+                            <label asp-for="HighValueThreshold" class="col-md-3 col-form-label text-md-right"></label>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input asp-for="HighValueThreshold" class="form-control" />
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">VND</span>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="HighValueThreshold" class="text-danger"></span>
+                                <small class="form-text text-muted">Đơn hàng có giá trị cao hơn ngưỡng này sẽ không được tự động xác nhận.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-6 offset-md-3">
+                                <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            function toggleHighValueThreshold() {
+                if ($("#excludeHighValueOrders").is(":checked")) {
+                    $("#highValueThresholdGroup").show();
+                } else {
+                    $("#highValueThresholdGroup").hide();
+                }
+            }
+
+            toggleHighValueThreshold();
+            $("#excludeHighValueOrders").change(toggleHighValueThreshold);
+        });
+    </script>
+}

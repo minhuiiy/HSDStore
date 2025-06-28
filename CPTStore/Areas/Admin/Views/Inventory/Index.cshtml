@@ -1,0 +1,116 @@
+@model List<CPTStore.Models.Inventory>
+@{
+    ViewData["Title"] = "Quản lý tồn kho";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Quản lý tồn kho</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item active">Quản lý tồn kho</li>
+    </ol>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-box-seam me-1"></i>
+                Danh sách tồn kho
+            </div>
+            <div>
+                <a asp-action="Synchronize" class="btn btn-primary btn-sm">
+                    <i class="bi bi-arrow-repeat"></i> Đồng bộ tồn kho
+                </a>
+                <a asp-action="LowStock" class="btn btn-warning btn-sm ms-2">
+                    <i class="bi bi-exclamation-triangle"></i> Tồn kho thấp
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="mb-3">
+                <div class="input-group">
+                    <input type="text" name="searchTerm" class="form-control" placeholder="Tìm kiếm theo tên hoặc mã sản phẩm" value="@ViewBag.SearchTerm" />
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã SP</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Mức tồn tối thiểu</th>
+                            <th>Mức tồn tối đa</th>
+                            <th>Trạng thái</th>
+                            <th>Cập nhật lần cuối</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@(item.NeedsRestock ? "table-warning" : "")">
+                                <td>@(item.Product?.SKU ?? "N/A")</td>
+                                <td>@(item.Product?.Name ?? "N/A")</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.MinimumStockLevel</td>
+                                <td>@item.MaximumStockLevel</td>
+                                <td>
+                                    @if (item.NeedsRestock)
+                                    {
+                                        <span class="badge bg-warning">Cần nhập thêm</span>
+                                    }
+                                    else if (item.IsInStock)
+                                    {
+                                        <span class="badge bg-success">Còn hàng</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Hết hàng</span>
+                                    }
+                                </td>
+                                <td>@item.LastUpdated.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchTerm="@ViewBag.SearchTerm">@i</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>

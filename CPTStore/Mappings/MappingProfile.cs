@@ -1,6 +1,8 @@
 using AutoMapper;
 using CPTStore.Models;
 using CPTStore.ViewModels;
+using CPTStore.Areas.Admin.ViewModels;
+using System;
 
 namespace CPTStore.Mappings
 {
@@ -21,9 +23,12 @@ namespace CPTStore.Mappings
             // Ánh xạ từ Product sang ProductViewModel
             CreateMap<Product, ProductViewModel>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : "Không có danh mục"));
+            CreateMap<Product, ProductViewModel>().ReverseMap();
 
             // Ánh xạ từ Category sang CategoryViewModel
             CreateMap<Category, CategoryViewModel>();
+            CreateMap<Category, CategoryViewModel>().ReverseMap();
+            CreateMap<OrderConfirmationSettings, OrderConfirmationSettingsViewModel>().ReverseMap();
 
             // Ánh xạ từ Order sang OrderViewModel
             CreateMap<Order, OrderViewModel>()

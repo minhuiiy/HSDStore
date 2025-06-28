@@ -11,6 +11,13 @@ namespace CPTStore.Services.Interfaces
     public interface ICartService
     {
         /// <summary>
+        /// Lấy thông tin giỏ hàng của người dùng
+        /// </summary>
+        /// <param name="userId">ID của người dùng</param>
+        /// <returns>Đối tượng Cart</returns>
+        Task<Cart> GetCartAsync(string userId);
+        
+        /// <summary>
         /// Lấy tất cả các CartItem của một người dùng
         /// </summary>
         /// <param name="userId">ID của người dùng</param>

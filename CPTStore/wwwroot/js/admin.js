@@ -10,6 +10,22 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
         });
     }
+    
+    // Toggle settings submenu
+    const settingsLink = document.querySelector('a[asp-controller="Settings"][asp-action="Index"]');
+    if (settingsLink) {
+        settingsLink.addEventListener('click', function(event) {
+            // Only toggle if clicking directly on the main settings link
+            if (event.target === settingsLink || settingsLink.contains(event.target)) {
+                event.preventDefault();
+                const submenu = settingsLink.nextElementSibling;
+                if (submenu && submenu.classList.contains('ms-4')) {
+                    submenu.classList.toggle('d-none');
+                    submenu.classList.toggle('d-block');
+                }
+            }
+        });
+    }
 
     // Check for saved sidebar state
     if (localStorage.getItem('sb|sidebar-toggle') === 'true') {

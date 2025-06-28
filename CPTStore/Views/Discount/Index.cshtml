@@ -1,0 +1,308 @@
+@model CPTStore.ViewModels.DiscountViewModel
+@{
+    ViewData["Title"] = "Mã giảm giá";
+}
+
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="mb-4">Mã giảm giá</h1>
+            
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Thông tin thành viên</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h5>Cấp độ thành viên của bạn:</h5>
+                                @switch (Model.MembershipLevel)
+                                {
+                                    case CPTStore.Models.MembershipLevel.Regular:
+                                        <span class="badge bg-secondary fs-5">Thường</span>
+                                        break;
+                                    case CPTStore.Models.MembershipLevel.Silver:
+                                        <span class="badge bg-secondary fs-5">Bạc</span>
+                                        break;
+                                    case CPTStore.Models.MembershipLevel.Gold:
+                                        <span class="badge bg-warning fs-5">Vàng</span>
+                                        break;
+                                    case CPTStore.Models.MembershipLevel.Diamond:
+                                        <span class="badge bg-info fs-5">Kim cương</span>
+                                        break;
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h5>Tổng giá trị đơn hàng:</h5>
+                                <p class="fs-5 fw-bold text-primary">@Model.TotalPurchases.ToString("#,##0") VNĐ</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <h5>Tiêu chuẩn các cấp độ thành viên:</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Cấp độ</th>
+                                            <th>Điều kiện</th>
+                                            <th>Quyền lợi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="badge bg-secondary">Thường</span></td>
+                                            <td>Mặc định</td>
+                                            <td>Mã giảm giá cơ bản</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-secondary">Bạc</span></td>
+                                            <td>Tổng đơn hàng từ 2,000,000 VNĐ</td>
+                                            <td>Mã giảm giá đặc biệt + Mã giảm giá cơ bản</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-warning">Vàng</span></td>
+                                            <td>Tổng đơn hàng từ 5,000,000 VNĐ</td>
+                                            <td>Mã giảm giá cao cấp + Mã giảm giá đặc biệt + Mã giảm giá cơ bản</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-info">Kim cương</span></td>
+                                            <td>Tổng đơn hàng từ 10,000,000 VNĐ</td>
+                                            <td>Mã giảm giá VIP + Mã giảm giá cao cấp + Mã giảm giá đặc biệt + Mã giảm giá cơ bản</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Mã giảm giá thành viên của bạn</h2>
+                    
+                    @if (Model.MembershipDiscounts == null || !Model.MembershipDiscounts.Any())
+                    {
+                        <div class="alert alert-info">
+                            Hiện tại không có mã giảm giá nào dành cho cấp độ thành viên của bạn.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            @foreach (var discount in Model.MembershipDiscounts)
+                            {
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card h-100 border @(discount.MembershipLevel == Model.MembershipLevel ? "border-primary" : "")">
+                                        <div class="card-header @(discount.MembershipLevel == Model.MembershipLevel ? "bg-primary text-white" : "")">
+                                            @switch (discount.MembershipLevel)
+                                            {
+                                                case CPTStore.Models.MembershipLevel.Regular:
+                                                    <span class="badge bg-secondary">Thường</span>
+                                                    break;
+                                                case CPTStore.Models.MembershipLevel.Silver:
+                                                    <span class="badge bg-secondary">Bạc</span>
+                                                    break;
+                                                case CPTStore.Models.MembershipLevel.Gold:
+                                                    <span class="badge bg-warning">Vàng</span>
+                                                    break;
+                                                case CPTStore.Models.MembershipLevel.Diamond:
+                                                    <span class="badge bg-info">Kim cương</span>
+                                                    break;
+                                            }
+                                            <discount-badge code="@discount.Code" type="@discount.DiscountType" value="@discount.Value" is-used="false"></discount-badge>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text">@discount.Description</p>
+                                            <ul class="list-group list-group-flush mb-3">
+                                                @if (discount.MinimumOrderAmount > 0)
+                                                {
+                                                    <li class="list-group-item">Đơn hàng tối thiểu: @discount.MinimumOrderAmount.ToString("#,##0") VNĐ</li>
+                                                }
+                                                @if (discount.DiscountType == CPTStore.Models.DiscountType.Percentage && discount.MaximumDiscountAmount > 0)
+                                                {
+                                                    <li class="list-group-item">Giảm tối đa: @String.Format("{0:#,##0}", discount.MaximumDiscountAmount) VNĐ</li>
+                                                }
+                                            </ul>
+                                            <form asp-action="ApplyMembershipDiscount" method="post">
+                                                <input type="hidden" name="discountCode" value="@discount.Code" />
+                                                <button type="submit" class="btn btn-primary w-100">Áp dụng mã giảm giá</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Mã giảm giá chung</h2>
+                    
+                    @if (Model.GeneralDiscounts == null || !Model.GeneralDiscounts.Any())
+                    {
+                        <div class="alert alert-info">
+                            Hiện tại không có mã giảm giá chung nào.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            @foreach (var discount in Model.GeneralDiscounts)
+                            {
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <discount-badge code="@discount.Code" type="@discount.DiscountType" value="@discount.Value" is-used="false">
+                                        <p class="card-text">@discount.Description</p>
+                                        <ul class="list-group list-group-flush mb-3">
+                                            @if (discount.MinimumOrderAmount > 0)
+                                            {
+                                                <li class="list-group-item">Đơn hàng tối thiểu: @discount.MinimumOrderAmount.ToString("#,##0") VNĐ</li>
+                                            }
+                                            @if (discount.DiscountType == CPTStore.Models.DiscountType.Percentage && discount.MaximumDiscountAmount.HasValue)
+                                            {
+                                                <li class="list-group-item">Giảm tối đa: @String.Format("{0:#,##0}", discount.MaximumDiscountAmount) VNĐ</li>
+                                            }
+                                            <li class="list-group-item">Ngày bắt đầu: @discount.StartDate.ToString("dd/MM/yyyy")</li>
+                                            @if (discount.EndDate.HasValue)
+                                            {
+                                                <li class="list-group-item">Ngày kết thúc: @discount.EndDate.Value.ToString("dd/MM/yyyy")</li>
+                                            }
+                                            @if (discount.UsageLimit.HasValue)
+                                            {
+                                                <li class="list-group-item">Giới hạn sử dụng: @discount.UsageLimit.Value lần (Đã dùng: @discount.UsageCount lần)</li>
+                                            }
+                                        </ul>
+                                        <form asp-action="ApplyGeneralDiscount" method="post">
+                                            <input type="hidden" name="discountCode" value="@discount.Code" />
+                                            <button type="submit" class="btn btn-success w-100">Áp dụng mã giảm giá</button>
+                                        </form>
+                                    </discount-badge>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Mã giảm giá đã lưu</h2>
+                    
+                    @if (Model.SavedDiscounts.IsNullOrEmpty())
+                    {
+                        <div class="alert alert-info">
+                            Bạn chưa lưu mã giảm giá nào.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Mã giảm giá</th>
+                                        <th>Ngày lưu</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var savedDiscount in Model.SavedDiscounts)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <discount-badge code="@savedDiscount.DiscountCode" is-used="@savedDiscount.IsUsed"></discount-badge>
+                                            </td>
+                                            <td>@savedDiscount.SavedDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>
+                                                @if (savedDiscount.IsUsed && savedDiscount.UsedDate.HasValue)
+                                                {
+                                                    <small class="text-muted d-block">Sử dụng: @savedDiscount.UsedDate.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!savedDiscount.IsUsed)
+                                                {
+                                                    <form asp-action="UseSavedDiscount" method="post" class="d-inline">
+                                                        <input type="hidden" name="id" value="@savedDiscount.Id" />
+                                                        <button type="submit" class="btn btn-sm btn-primary">Sử dụng</button>
+                                                    </form>
+                                                }
+                                                <form asp-action="DeleteSavedDiscount" method="post" class="d-inline ms-1">
+                                                    <input type="hidden" name="id" value="@savedDiscount.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    
+                    <div class="mt-4">
+                        <h5>Lưu mã giảm giá mới</h5>
+                        <form asp-action="SaveDiscount" method="post" class="row g-3">
+                            <div class="col-md-8">
+                                <input type="text" name="discountCode" class="form-control" placeholder="Nhập mã giảm giá" required />
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary w-100">Lưu mã giảm giá</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại trang chủ
+                </a>
+                <a asp-controller="Cart" asp-action="Index" class="btn btn-primary">
+                    <i class="bi bi-cart"></i> Đi đến giỏ hàng
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,15 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using CPTStore.Models;
 
 namespace CPTStore.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
+        : IdentityDbContext<ApplicationUser>(options)
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
 
         // Các bảng trong CSDL
         public required DbSet<Product> Products { get; set; }
@@ -23,6 +20,9 @@ namespace CPTStore.Data
         public required DbSet<ChatMessage> ChatMessages { get; set; }
         public required DbSet<ProductView> ProductViews { get; set; }
         public required DbSet<CartDiscount> CartDiscounts { get; set; }
+        public required DbSet<MembershipDiscount> MembershipDiscounts { get; set; }
+        public required DbSet<SavedDiscount> SavedDiscounts { get; set; }
+        public required DbSet<Setting> Settings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -68,7 +68,8 @@ namespace CPTStore.Data
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.ApplicationUser)
                 .WithMany(u => u.Orders)
-                .HasForeignKey(o => o.ApplicationUserId);
+                .HasForeignKey(o => o.UserId)
+                .IsRequired(false);
 
             modelBuilder.Entity<ProductReview>()
                 .HasOne(pr => pr.ApplicationUser)
@@ -85,6 +86,18 @@ namespace CPTStore.Data
                 .HasOne(pv => pv.Product)
                 .WithMany()
                 .HasForeignKey(pv => pv.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SavedDiscount>()
+                .HasOne(sd => sd.Discount)
+                .WithMany()
+                .HasForeignKey(sd => sd.DiscountId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SavedDiscount>()
+                .HasOne(sd => sd.User)
+                .WithMany()
+                .HasForeignKey(sd => sd.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

@@ -36,7 +36,7 @@
                         <div class="col-md-6">
                             <h6>Thông tin đơn hàng</h6>
                             <p><strong>Mã đơn hàng:</strong> @Model.OrderReference</p>
-                            <p><strong>Ngày đặt hàng:</strong> @(Model.OrderDate != default(DateTime) ? Model.OrderDate.ToString("dd/MM/yyyy HH:mm") : Model.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</p>
+                            <p><strong>Ngày đặt hàng:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
                             <p><strong>Phương thức thanh toán:</strong> @(Model.PaymentMethod == PaymentMethod.COD ? "Thanh toán khi nhận hàng" : Model.PaymentMethod == PaymentMethod.BankTransfer ? "Chuyển khoản ngân hàng" : "Thẻ tín dụng/Ghi nợ")</p>
                             <p><strong>Trạng thái thanh toán:</strong> <span class="@(Model.PaymentStatus == PaymentStatus.Completed ? "text-success" : "text-warning")">@(Model.PaymentStatus == PaymentStatus.Completed ? "Đã thanh toán" : "Chưa thanh toán")</span></p>
                         </div>
@@ -75,13 +75,9 @@
                     @if (Model.Status == OrderStatus.Pending || Model.Status == OrderStatus.Processing)
                     {
                         <div class="mt-4 text-center">
-                            <form method="post" action="@Url.Action("CancelOrder", "Order")">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="orderId" value="@Model.Id" />
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
-                                    <i class="bi bi-x-circle"></i> Hủy đơn hàng
-                                </button>
-                            </form>
+                            <a href="@Url.Action("CancelOrder", "Order", new { id = Model.Id })" class="btn btn-danger">
+                                <i class="bi bi-x-circle"></i> Hủy đơn hàng
+                            </a>
                         </div>
                     }
                 </div>

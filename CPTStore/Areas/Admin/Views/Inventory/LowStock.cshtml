@@ -1,0 +1,70 @@
+@model IEnumerable<CPTStore.Models.Inventory>
+@{
+    ViewData["Title"] = "Tồn kho thấp";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Tồn kho thấp</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Inventory" asp-action="Index">Quản lý tồn kho</a></li>
+        <li class="breadcrumb-item active">Tồn kho thấp</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            Danh sách sản phẩm có tồn kho thấp
+        </div>
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i> Không có sản phẩm nào có tồn kho thấp.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Mã SP</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Số lượng hiện tại</th>
+                                <th>Mức tồn tối thiểu</th>
+                                <th>Cần nhập thêm</th>
+                                <th>Cập nhật lần cuối</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@(item.Product?.SKU ?? "N/A")</td>
+                                    <td>@(item.Product?.Name ?? "N/A")</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@item.MinimumStockLevel</td>
+                                    <td>@(item.MinimumStockLevel - item.Quantity)</td>
+                                    <td>@item.LastUpdated.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            <div class="mt-3">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -6,18 +6,11 @@ using System.Text;
 
 namespace CPTStore.Services
 {
-    public class PaymentService : IPaymentService
+    public class PaymentService(ApplicationDbContext context, IOrderService orderService, IEmailService emailService) : IPaymentService
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IOrderService _orderService;
-        private readonly IEmailService _emailService;
-
-        public PaymentService(ApplicationDbContext context, IOrderService orderService, IEmailService emailService)
-        {
-            _context = context;
-            _orderService = orderService;
-            _emailService = emailService;
-        }
+        private readonly ApplicationDbContext _context = context;
+        private readonly IOrderService _orderService = orderService;
+        private readonly IEmailService _emailService = emailService;
 
         public async Task<PaymentResult> ProcessPaymentAsync(int orderId, string paymentMethod, string? returnUrl = null)
         {
@@ -45,7 +38,7 @@ namespace CPTStore.Services
             order.PaymentMethod = paymentMethodEnum;
 
             // Xử lý thanh toán dựa trên phương thức
-            bool paymentSuccess = false;
+            bool paymentSuccess;
             string? transactionId = null;
             string? redirectUrl = null;
 
@@ -57,7 +50,7 @@ namespace CPTStore.Services
                     break;
 
                 case PaymentMethod.CreditCard:
-                    paymentSuccess = await ProcessCreditCardPaymentAsync(order, null);
+                    paymentSuccess = await ProcessCreditCardPaymentAsync(null);
                     redirectUrl = GenerateCreditCardPaymentUrl(order);
                     break;
 
@@ -68,17 +61,17 @@ namespace CPTStore.Services
                     break;
 
                 case PaymentMethod.Momo:
-                    paymentSuccess = await ProcessMomoPaymentAsync(order, null);
+                    paymentSuccess = await ProcessMomoPaymentAsync(null);
                     redirectUrl = await GenerateMomoPaymentUrlAsync(order);
                     break;
 
                 case PaymentMethod.VNPay:
-                    paymentSuccess = await ProcessVNPayPaymentAsync(order, null);
+                    paymentSuccess = await ProcessVNPayPaymentAsync(null);
                     redirectUrl = await GenerateVNPayPaymentUrlAsync(order);
                     break;
 
                 case PaymentMethod.ZaloPay:
-                    paymentSuccess = await ProcessZaloPayPaymentAsync(order, null);
+                    paymentSuccess = await ProcessZaloPayPaymentAsync(null);
                     redirectUrl = await GenerateZaloPayPaymentUrlAsync(order);
                     break;
 
@@ -98,7 +91,30 @@ namespace CPTStore.Services
             }
 
             // Lưu thay đổi
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                Console.WriteLine($"Lỗi cơ sở dữ liệu khi xử lý thanh toán cho đơn hàng ID: {orderId}, Lỗi: {dbEx.Message}");
+                if (dbEx.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {dbEx.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {dbEx.StackTrace}");
+                throw new InvalidOperationException($"Không thể xử lý thanh toán do lỗi cơ sở dữ liệu: {dbEx.Message}", dbEx);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi xử lý thanh toán cho đơn hàng ID: {orderId}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw new InvalidOperationException($"Không thể xử lý thanh toán: {ex.Message}", ex);
+            }
 
             // Gửi email xác nhận thanh toán nếu cần
             // Đã bỏ gọi SendPaymentConfirmationAsync vì IEmailService không có phương thức này
@@ -145,7 +161,7 @@ namespace CPTStore.Services
             }
 
             // Xác minh thanh toán dựa trên phương thức thanh toán
-            bool verificationSuccess = false;
+            bool verificationSuccess;
 
             switch (paymentMethodEnum)
             {
@@ -154,19 +170,19 @@ namespace CPTStore.Services
                     break;
 
                 case PaymentMethod.CreditCard:
-                    verificationSuccess = await VerifyCreditCardPaymentAsync(order, transactionId);
+                    verificationSuccess = await VerifyCreditCardPaymentAsync();
                     break;
 
                 case PaymentMethod.Momo:
-                    verificationSuccess = await VerifyMomoPaymentAsync(order, transactionId);
+                    verificationSuccess = await VerifyMomoPaymentAsync();
                     break;
 
                 case PaymentMethod.VNPay:
-                    verificationSuccess = await VerifyVNPayPaymentAsync(order, transactionId);
+                    verificationSuccess = await VerifyVNPayPaymentAsync();
                     break;
 
                 case PaymentMethod.ZaloPay:
-                    verificationSuccess = await VerifyZaloPayPaymentAsync(order, transactionId);
+                    verificationSuccess = await VerifyZaloPayPaymentAsync();
                     break;
 
                 default:
@@ -181,7 +197,31 @@ namespace CPTStore.Services
             if (verificationSuccess)
             {
                 await _orderService.UpdatePaymentStatusAsync(orderId, PaymentStatus.Completed, transactionId);
-                await _context.SaveChangesAsync();
+                
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    Console.WriteLine($"Lỗi cơ sở dữ liệu khi xác minh thanh toán cho đơn hàng ID: {orderId}, Lỗi: {dbEx.Message}");
+                    if (dbEx.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner Exception: {dbEx.InnerException.Message}");
+                    }
+                    Console.WriteLine($"Stack Trace: {dbEx.StackTrace}");
+                    throw new InvalidOperationException($"Không thể xác minh thanh toán do lỗi cơ sở dữ liệu: {dbEx.Message}", dbEx);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Lỗi khi xác minh thanh toán cho đơn hàng ID: {orderId}, Lỗi: {ex.Message}");
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                    }
+                    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                    throw new InvalidOperationException($"Không thể xác minh thanh toán: {ex.Message}", ex);
+                }
 
                 // Gửi email xác nhận đơn hàng thay vì email xác nhận thanh toán
                 await _emailService.SendOrderConfirmationAsync(orderId);
@@ -218,7 +258,7 @@ namespace CPTStore.Services
 
             // Xử lý hoàn tiền dựa trên phương thức thanh toán
             bool refundSuccess = false;
-            string refundMessage = "Hoàn tiền thất bại";
+            string refundMessage;
 
             switch (order.PaymentMethod)
             {
@@ -273,7 +313,31 @@ namespace CPTStore.Services
             if (refundSuccess)
             {
                 await _orderService.UpdatePaymentStatusAsync(orderId, PaymentStatus.Refunded);
-                await _context.SaveChangesAsync();
+                
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    Console.WriteLine($"Lỗi cơ sở dữ liệu khi hoàn tiền cho đơn hàng ID: {orderId}, Lỗi: {dbEx.Message}");
+                    if (dbEx.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner Exception: {dbEx.InnerException.Message}");
+                    }
+                    Console.WriteLine($"Stack Trace: {dbEx.StackTrace}");
+                    throw new InvalidOperationException($"Không thể hoàn tiền do lỗi cơ sở dữ liệu: {dbEx.Message}", dbEx);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Lỗi khi hoàn tiền cho đơn hàng ID: {orderId}, Lỗi: {ex.Message}");
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                    }
+                    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                    throw new InvalidOperationException($"Không thể hoàn tiền: {ex.Message}", ex);
+                }
 
                 // Gửi email xác nhận cập nhật trạng thái đơn hàng thay vì email xác nhận hoàn tiền
                 await _emailService.SendOrderStatusUpdateAsync(orderId);
@@ -301,7 +365,7 @@ namespace CPTStore.Services
                 return string.Empty;
             }
 
-            string paymentUrl = string.Empty;
+            string paymentUrl;
 
             switch (paymentMethodEnum)
             {
@@ -329,7 +393,7 @@ namespace CPTStore.Services
             if (!string.IsNullOrEmpty(returnUrl) && !string.IsNullOrEmpty(paymentUrl))
             {
                 // Thêm tham số returnUrl vào URL thanh toán
-                paymentUrl += (paymentUrl.Contains("?") ? "&" : "?") + "returnUrl=" + Uri.EscapeDataString(returnUrl);
+                paymentUrl += (paymentUrl.Contains('?') ? "&" : "?") + "returnUrl=" + Uri.EscapeDataString(returnUrl);
             }
 
             return paymentUrl;
@@ -337,7 +401,7 @@ namespace CPTStore.Services
 
         #region Private Methods for Payment Processing
 
-        private async Task<bool> ProcessCreditCardPaymentAsync(Order order, string? transactionId)
+        private static async Task<bool> ProcessCreditCardPaymentAsync(string? transactionId)
         {
             // Mô phỏng xử lý thanh toán thẻ tín dụng
             // Trong thực tế, bạn sẽ tích hợp với cổng thanh toán thẻ tín dụng
@@ -345,7 +409,7 @@ namespace CPTStore.Services
             return !string.IsNullOrEmpty(transactionId);
         }
 
-        private async Task<bool> ProcessMomoPaymentAsync(Order order, string? transactionId)
+        private static async Task<bool> ProcessMomoPaymentAsync(string? transactionId)
         {
             // Mô phỏng xử lý thanh toán Momo
             // Trong thực tế, bạn sẽ tích hợp với API của Momo
@@ -353,7 +417,7 @@ namespace CPTStore.Services
             return !string.IsNullOrEmpty(transactionId);
         }
 
-        private async Task<bool> ProcessVNPayPaymentAsync(Order order, string? transactionId)
+        private static async Task<bool> ProcessVNPayPaymentAsync(string? transactionId)
         {
             // Mô phỏng xử lý thanh toán VNPay
             // Trong thực tế, bạn sẽ tích hợp với API của VNPay
@@ -361,7 +425,7 @@ namespace CPTStore.Services
             return !string.IsNullOrEmpty(transactionId);
         }
 
-        private async Task<bool> ProcessZaloPayPaymentAsync(Order order, string? transactionId)
+        private static async Task<bool> ProcessZaloPayPaymentAsync(string? transactionId)
         {
             // Mô phỏng xử lý thanh toán ZaloPay
             // Trong thực tế, bạn sẽ tích hợp với API của ZaloPay
@@ -369,7 +433,7 @@ namespace CPTStore.Services
             return !string.IsNullOrEmpty(transactionId);
         }
 
-        private async Task<bool> VerifyBankTransferAsync(Order order, string transactionId)
+        private static async Task<bool> VerifyBankTransferAsync(Order order, string transactionId)
         {
             // Mô phỏng xác minh chuyển khoản ngân hàng
             // Trong thực tế, bạn sẽ kiểm tra thông tin chuyển khoản
@@ -377,7 +441,7 @@ namespace CPTStore.Services
             return true;
         }
 
-        private async Task<bool> VerifyCreditCardPaymentAsync(Order order, string transactionId)
+        private static async Task<bool> VerifyCreditCardPaymentAsync()
         {
             // Mô phỏng xác minh thanh toán thẻ tín dụng
             // Trong thực tế, bạn sẽ tích hợp với cổng thanh toán thẻ tín dụng
@@ -385,7 +449,7 @@ namespace CPTStore.Services
             return true;
         }
 
-        private async Task<bool> VerifyMomoPaymentAsync(Order order, string transactionId)
+        private static async Task<bool> VerifyMomoPaymentAsync()
         {
             // Mô phỏng xác minh thanh toán Momo
             // Trong thực tế, bạn sẽ tích hợp với API của Momo
@@ -393,7 +457,7 @@ namespace CPTStore.Services
             return true;
         }
 
-        private async Task<bool> VerifyVNPayPaymentAsync(Order order, string transactionId)
+        private static async Task<bool> VerifyVNPayPaymentAsync()
         {
             // Mô phỏng xác minh thanh toán VNPay
             // Trong thực tế, bạn sẽ tích hợp với API của VNPay
@@ -401,7 +465,7 @@ namespace CPTStore.Services
             return true;
         }
 
-        private async Task<bool> VerifyZaloPayPaymentAsync(Order order, string transactionId)
+        private static async Task<bool> VerifyZaloPayPaymentAsync()
         {
             // Mô phỏng xác minh thanh toán ZaloPay
             // Trong thực tế, bạn sẽ tích hợp với API của ZaloPay
@@ -409,7 +473,7 @@ namespace CPTStore.Services
             return true;
         }
 
-        private async Task<bool> RefundCreditCardPaymentAsync(Order order)
+        private static async Task<bool> RefundCreditCardPaymentAsync(Order order)
         {
             // Mô phỏng hoàn tiền thẻ tín dụng
             // Trong thực tế, bạn sẽ tích hợp với cổng thanh toán thẻ tín dụng
@@ -417,7 +481,7 @@ namespace CPTStore.Services
             return true;
         }
 
-        private async Task<bool> RefundMomoPaymentAsync(Order order)
+        private static async Task<bool> RefundMomoPaymentAsync(Order order)
         {
             // Mô phỏng hoàn tiền Momo
             // Trong thực tế, bạn sẽ tích hợp với API của Momo
@@ -425,7 +489,7 @@ namespace CPTStore.Services
             return true;
         }
 
-        private async Task<bool> RefundVNPayPaymentAsync(Order order)
+        private static async Task<bool> RefundVNPayPaymentAsync(Order order)
         {
             // Mô phỏng hoàn tiền VNPay
             // Trong thực tế, bạn sẽ tích hợp với API của VNPay
@@ -433,7 +497,7 @@ namespace CPTStore.Services
             return true;
         }
 
-        private async Task<bool> RefundZaloPayPaymentAsync(Order order)
+        private static async Task<bool> RefundZaloPayPaymentAsync(Order order)
         {
             // Mô phỏng hoàn tiền ZaloPay
             // Trong thực tế, bạn sẽ tích hợp với API của ZaloPay

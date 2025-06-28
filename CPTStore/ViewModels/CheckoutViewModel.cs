@@ -47,11 +47,14 @@ namespace CPTStore.ViewModels
         [Display(Name = "Ghi chú")]
         public string? Notes { get; set; }
         
-        // Alias cho Notes để tương thích với tệp Checkout.cshtml
+        // Alias for Notes to maintain compatibility
         [Display(Name = "Ghi chú")]
         public string? Note { get => Notes; set => Notes = value; }
 
         // Thông tin thanh toán
+        
+        [Display(Name = "Tổng tiền")]
+        public decimal TotalAmount { get; set; }
         [Display(Name = "Phương thức thanh toán")]
         [Required(ErrorMessage = "Vui lòng chọn phương thức thanh toán")]
         public Models.PaymentMethod PaymentMethod { get; set; }
@@ -65,8 +68,5 @@ namespace CPTStore.ViewModels
         public decimal ExpressShippingFee { get; set; } = 60000;
         public decimal Discount { get; set; }
         public decimal Total => SubTotal + ShippingFee - Discount;
-        
-        // Alias cho Total để tương thích với tệp Checkout.cshtml
-        public decimal TotalAmount => Total;
     }
 }

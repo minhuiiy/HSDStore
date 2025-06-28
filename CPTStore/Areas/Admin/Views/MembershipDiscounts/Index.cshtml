@@ -1,0 +1,122 @@
+@model IEnumerable<CPTStore.Models.MembershipDiscount>
+@{
+    ViewData["Title"] = "Quản lý mã giảm giá thành viên";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý mã giảm giá thành viên</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Thêm mới
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách mã giảm giá thành viên</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Cấp độ thành viên</th>
+                            <th>Mã giảm giá</th>
+                            <th>Mô tả</th>
+                            <th>Loại</th>
+                            <th>Giá trị</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @switch (item.MembershipLevel)
+                                    {
+                                        case CPTStore.Models.MembershipLevel.Regular:
+                                            <span class="badge bg-secondary">Thường</span>
+                                            break;
+                                        case CPTStore.Models.MembershipLevel.Silver:
+                                            <span class="badge bg-secondary">Bạc</span>
+                                            break;
+                                        case CPTStore.Models.MembershipLevel.Gold:
+                                            <span class="badge bg-warning">Vàng</span>
+                                            break;
+                                        case CPTStore.Models.MembershipLevel.Diamond:
+                                            <span class="badge bg-info">Kim cương</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>@item.Code</td>
+                                <td>@item.Description</td>
+                                <td>
+                                    @if (item.DiscountType == CPTStore.Models.DiscountType.Percentage)
+                                    {
+                                        <span>Phần trăm</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Số tiền cố định</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.DiscountType == CPTStore.Models.DiscountType.Percentage)
+                                    {
+                                        <span>@item.Value%</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@item.Value.ToString("#,##0") VNĐ</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success">Hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Không hoạt động</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                                            <i class="bi bi-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable();
+        });
+    </script>
+}

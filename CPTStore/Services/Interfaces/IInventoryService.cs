@@ -1,4 +1,6 @@
 using CPTStore.Models;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace CPTStore.Services
 {
@@ -14,5 +16,7 @@ namespace CPTStore.Services
         Task<bool> CreateInventoryAsync(Inventory inventory);
         Task UpdateInventoryAsync(Inventory inventory);
         Task SendLowStockNotificationsAsync();
+        Task<int> SynchronizeProductStockAsync();
+        Task<int> FixInventoryStockSynchronizationAsync();
     }
 }

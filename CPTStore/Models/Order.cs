@@ -36,12 +36,12 @@ namespace CPTStore.Models
         [Key]
         public int Id { get; set; }
 
-        [ForeignKey("ApplicationUser")]
-        public string? ApplicationUserId { get; set; }
-        public ApplicationUser? ApplicationUser { get; set; }
-
-        [Required]
-        public string UserId { get; set; } = string.Empty;
+        // Cho phép UserId là null để hỗ trợ đơn hàng của khách không đăng nhập
+        public string? UserId { get; set; }
+        
+        // SessionId để lưu trữ ID phiên làm việc của khách không đăng nhập
+        [StringLength(100)]
+        public string? SessionId { get; set; }
 
         [Required]
         [StringLength(100)]
@@ -67,6 +67,9 @@ namespace CPTStore.Models
 
         [Column(TypeName = "decimal(18, 2)")]
         public decimal DiscountAmount { get; set; } = 0;
+        
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal ShippingFee { get; set; } = 0;
 
         [StringLength(50)]
         public string? DiscountCode { get; set; }
@@ -119,6 +122,7 @@ namespace CPTStore.Models
 
         // Navigation properties
         public IEnumerable<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public ApplicationUser? ApplicationUser { get; set; }
 
         // Thuộc tính tính toán để tương thích với mã hiện tại
         [NotMapped]
@@ -127,29 +131,28 @@ namespace CPTStore.Models
         [NotMapped]
         public string CustomerAddress => Address;
         
-        [NotMapped]
-        public string ShippingAddress => Address;
-        
-        [NotMapped]
-        public string? CustomerEmail => Email;
-        
-        [NotMapped]
-        public bool IsPaid => PaymentStatus == PaymentStatus.Completed;
-        
-        [NotMapped]
-        public string? TrackingNumber { get; set; }
-        
         // Thuộc tính tính toán cho SubTotal, ShippingFee, Discount và Note
         [NotMapped]
         public decimal SubTotal => OrderItems?.Sum(item => item.Price * item.Quantity) ?? 0;
         
-        [NotMapped]
-        public decimal ShippingFee => 0; // Giá trị mặc định, có thể thay đổi theo logic của ứng dụng
+        // ShippingFee is now a real property, no need for NotMapped version
         
         [NotMapped]
         public decimal Discount => DiscountAmount;
         
         [NotMapped]
         public string? Note => Notes;
+        
+        [NotMapped]
+        public string? CustomerEmail => Email;
+        
+        [NotMapped]
+        public string? ShippingAddress => Address;
+        
+        [NotMapped]
+        public bool IsPaid => PaymentStatus == PaymentStatus.Completed;
+        
+        [NotMapped]
+        public string? TrackingNumber { get; set; }
     }
 }

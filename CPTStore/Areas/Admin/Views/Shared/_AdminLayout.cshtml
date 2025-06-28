@@ -20,6 +20,9 @@
                 <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")" asp-area="Admin" asp-controller="Products" asp-action="Index">
                     <i class="bi bi-box-seam me-2"></i> Sản phẩm
                 </a>
+                <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Inventory" ? "active" : "")" asp-area="Admin" asp-controller="Inventory" asp-action="Index">
+                    <i class="bi bi-archive me-2"></i> Tồn kho
+                </a>
                 <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Categories" ? "active" : "")" asp-area="Admin" asp-controller="Categories" asp-action="Index">
                     <i class="bi bi-grid me-2"></i> Danh mục
                 </a>
@@ -38,6 +41,17 @@
                 <a class="list-group-item list-group-item-action list-group-item-dark p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")" asp-area="Admin" asp-controller="Settings" asp-action="Index">
                     <i class="bi bi-gear me-2"></i> Cài đặt
                 </a>
+                <div class="ms-4 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "d-block" : "d-none")">
+                    <a class="list-group-item list-group-item-action list-group-item-dark p-2 @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")" asp-area="Admin" asp-controller="Settings" asp-action="Index">
+                        <i class="bi bi-sliders me-2"></i> Cài đặt chung
+                    </a>
+                    <a class="list-group-item list-group-item-action list-group-item-dark p-2 @(ViewContext.RouteData.Values["action"]?.ToString() == "OrderConfirmation" ? "active" : "")" asp-area="Admin" asp-controller="Settings" asp-action="OrderConfirmation">
+                        <i class="bi bi-check2-circle me-2"></i> Tự động xác nhận đơn hàng
+                    </a>
+                    <a class="list-group-item list-group-item-action list-group-item-dark p-2 @(ViewContext.RouteData.Values["action"]?.ToString() == "Backup" ? "active" : "")" asp-area="Admin" asp-controller="Settings" asp-action="Backup">
+                        <i class="bi bi-archive me-2"></i> Sao lưu & Phục hồi
+                    </a>
+                </div>
             </div>
         </div>
         <!-- Page content wrapper -->

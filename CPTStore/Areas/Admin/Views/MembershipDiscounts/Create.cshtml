@@ -1,0 +1,121 @@
+@model CPTStore.Models.MembershipDiscount
+@{
+    ViewData["Title"] = "Thêm mã giảm giá thành viên mới";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Thêm mã giảm giá thành viên mới</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin mã giảm giá</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="MembershipLevel" class="control-label">Cấp độ thành viên</label>
+                            <select asp-for="MembershipLevel" class="form-select">
+                                <option value="@CPTStore.Models.MembershipLevel.Regular">Thường</option>
+                                <option value="@CPTStore.Models.MembershipLevel.Silver">Bạc</option>
+                                <option value="@CPTStore.Models.MembershipLevel.Gold">Vàng</option>
+                                <option value="@CPTStore.Models.MembershipLevel.Diamond">Kim cương</option>
+                            </select>
+                            <span asp-validation-for="MembershipLevel" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Code" class="control-label">Mã giảm giá</label>
+                            <input asp-for="Code" class="form-control" />
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label">Mô tả</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="DiscountType" class="control-label">Loại giảm giá</label>
+                            <select asp-for="DiscountType" class="form-select">
+                                <option value="@CPTStore.Models.DiscountType.FixedAmount">Số tiền cố định</option>
+                                <option value="@CPTStore.Models.DiscountType.Percentage">Phần trăm</option>
+                            </select>
+                            <span asp-validation-for="DiscountType" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Value" class="control-label">Giá trị</label>
+                            <input asp-for="Value" class="form-control" />
+                            <span asp-validation-for="Value" class="text-danger"></span>
+                            <small class="form-text text-muted">Nhập phần trăm (%) hoặc số tiền cố định tùy theo loại giảm giá.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="MinimumOrderAmount" class="control-label">Giá trị đơn hàng tối thiểu</label>
+                            <input asp-for="MinimumOrderAmount" class="form-control" />
+                            <span asp-validation-for="MinimumOrderAmount" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="MaximumDiscountAmount" class="control-label">Giảm giá tối đa</label>
+                            <input asp-for="MaximumDiscountAmount" class="form-control" />
+                            <span asp-validation-for="MaximumDiscountAmount" class="text-danger"></span>
+                            <small class="form-text text-muted">Chỉ áp dụng cho giảm giá theo phần trăm.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label">Kích hoạt</label>
+                            <span asp-validation-for="IsActive" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Lưu
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Hủy
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

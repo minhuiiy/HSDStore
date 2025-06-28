@@ -48,15 +48,15 @@ namespace CPTStore.Models
 
         public bool IsActive { get; set; } = true;
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }
 
         // Kiểm tra xem mã giảm giá có còn hiệu lực không
         [NotMapped]
         public bool IsValid => IsActive && 
-                             (EndDate == null || EndDate >= DateTime.Now) && 
-                             (StartDate <= DateTime.Now) && 
+                             (EndDate == null || EndDate >= DateTime.UtcNow) && 
+                             (StartDate <= DateTime.UtcNow) && 
                              (UsageLimit == null || UsageCount < UsageLimit);
     }
 }

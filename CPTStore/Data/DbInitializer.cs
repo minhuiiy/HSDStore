@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using CPTStore.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -78,6 +79,70 @@ namespace CPTStore.Data
                         await userManager.AddToRoleAsync(adminUser, "Admin");
                         logger.LogInformation("Đã thêm vai trò Admin cho tài khoản admin hiện có");
                     }
+                }
+
+                // Thêm dữ liệu mẫu cho mã giảm giá thành viên
+                if (!context.MembershipDiscounts.Any())
+                {
+                    var membershipDiscounts = new List<MembershipDiscount>
+                    {
+                        new MembershipDiscount
+                        {
+                            MembershipLevel = MembershipLevel.Silver,
+                            Code = "SILVER10",
+                            Description = "Giảm giá 10% cho thành viên Silver",
+                            DiscountType = DiscountType.Percentage,
+                            Value = 10,
+                            MinimumOrderAmount = 0,
+                            MaximumDiscountAmount = 100000,
+                            IsActive = true,
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now
+                        },
+                        new MembershipDiscount
+                        {
+                            MembershipLevel = MembershipLevel.Gold,
+                            Code = "GOLD15",
+                            Description = "Giảm giá 15% cho thành viên Gold",
+                            DiscountType = DiscountType.Percentage,
+                            Value = 15,
+                            MinimumOrderAmount = 0,
+                            MaximumDiscountAmount = 200000,
+                            IsActive = true,
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now
+                        },
+                        new MembershipDiscount
+                        {
+                            MembershipLevel = MembershipLevel.Diamond,
+                            Code = "DIAMOND20",
+                            Description = "Giảm giá 20% cho thành viên Diamond",
+                            DiscountType = DiscountType.Percentage,
+                            Value = 20,
+                            MinimumOrderAmount = 0,
+                            MaximumDiscountAmount = 500000,
+                            IsActive = true,
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now
+                        },
+                        new MembershipDiscount
+                        {
+                            MembershipLevel = MembershipLevel.Diamond,
+                            Code = "DIAMONDFIXED50K",
+                            Description = "Giảm giá cố định 50.000đ cho thành viên Diamond",
+                            DiscountType = DiscountType.FixedAmount,
+                            Value = 50000,
+                            MinimumOrderAmount = 200000,
+                            MaximumDiscountAmount = 50000,
+                            IsActive = true,
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now
+                        }
+                    };
+
+                    context.MembershipDiscounts.AddRange(membershipDiscounts);
+                    await context.SaveChangesAsync();
+                    logger.LogInformation("Đã thêm dữ liệu mẫu cho mã giảm giá thành viên");
                 }
 
                 logger.LogInformation("Khởi tạo dữ liệu hoàn tất");

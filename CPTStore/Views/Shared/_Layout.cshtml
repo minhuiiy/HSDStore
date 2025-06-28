@@ -10,12 +10,12 @@
     <link rel="stylesheet" href="~/CPTStore.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" href="@Url.Action("Index", "Home")">
-                    <img src="/images/logo.png" alt="CPT Store" height="40" onerror="this.src='/images/logo-placeholder.png'; this.onerror='';"> CPT Store
+                    <img src="/images/logo.jpg" alt="CPT Store" height="120px" ; this.onerror='';"> CPT Store
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" href="@Url.Action("Index", "Product", new { isOnSale = true })">Khuyến mãi</a>
                         </li>
+                        <li class="nav-item"></li>
+                            <a class="nav-link text-dark" href="@Url.Action("Index", "Discount", new { isOnSale = true })">Mã giảm giá</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Contact">Liên hệ</a>
                         </li>
@@ -82,6 +85,8 @@
                                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                         <li><a class="dropdown-item" href="@Url.Action("Profile", "Account")"><i class="bi bi-person-circle me-2"></i>Tài khoản của tôi</a></li>
                                         <li><a class="dropdown-item" href="@Url.Action("MyOrders", "Order")"><i class="bi bi-box me-2"></i>Đơn hàng của tôi</a></li>
+                                        <li><a class="dropdown-item" href="@Url.Action("Index", "Membership")"><i class="bi bi-award me-2"></i>Chương trình thành viên</a></li>
+                                        <li><a class="dropdown-item" href="@Url.Action("Index", "Discount")"><i class="bi bi-tag me-2"></i>Mã giảm giá</a></li>
                                         <li><a class="dropdown-item" href="@Url.Action("Wishlist", "Account")"><i class="bi bi-heart me-2"></i>Sản phẩm yêu thích</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
@@ -105,16 +110,17 @@
             </div>
         </nav>
     </header>
-    <div class="container flex-grow-1 d-flex flex-column">
-        <main role="main" class="pb-3 flex-grow-1">
+    <div class="container">
+        <main role="main" class="pb-3">
+            <partial name="_Notification" />
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted bg-light mt-3">
-        <div class="container py-3">
+    <footer class="border-top footer text-muted bg-light mt-5">
+        <div class="container py-5">
             <div class="row">
-                <div class="col-md-3 mb-2">
+                <div class="col-md-3 mb-4">
                     <h5>CPT Store</h5>
                     <p>Cung cấp các sản phẩm công nghệ chất lượng cao với giá cả hợp lý.</p>
                     <div class="d-flex">
@@ -124,7 +130,7 @@
                         <a href="#" class="text-dark"><i class="bi bi-youtube fs-4"></i></a>
                     </div>
                 </div>
-                <div class="col-md-3 mb-2">
+                <div class="col-md-3 mb-4">
                     <h5>Thông tin</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="@Url.Action("About", "Home")" class="text-decoration-none text-dark">Giới thiệu</a></li>
@@ -134,17 +140,18 @@
                         <li class="mb-2"><a href="@Url.Action("Faq", "Home")" class="text-decoration-none text-dark">Câu hỏi thường gặp</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3 mb-2">
+                <div class="col-md-3 mb-4">
                     <h5>Tài khoản</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="@Url.Action("Login", "Account")" class="text-decoration-none text-dark">Đăng nhập</a></li>
                         <li class="mb-2"><a href="@Url.Action("Register", "Account")" class="text-decoration-none text-dark">Đăng ký</a></li>
                         <li class="mb-2"><a href="@Url.Action("Profile", "Account")" class="text-decoration-none text-dark">Tài khoản của tôi</a></li>
                         <li class="mb-2"><a href="@Url.Action("MyOrders", "Order")" class="text-decoration-none text-dark">Đơn hàng của tôi</a></li>
+                        <li class="mb-2"><a href="@Url.Action("Index", "Discount")" class="text-decoration-none text-dark">Mã giảm giá</a></li>
                         <li class="mb-2"><a href="@Url.Action("Wishlist", "Account")" class="text-decoration-none text-dark">Sản phẩm yêu thích</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3 mb-2">
+                <div class="col-md-3 mb-4">
                     <h5>Liên hệ</h5>
                     <address>
                         <p><i class="bi bi-geo-alt me-2"></i> 123 Đường ABC, Quận XYZ, TP. HCM</p>

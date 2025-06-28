@@ -1,5 +1,6 @@
-@model CPTStore.Models.ViewModels.CategoryViewModel
-@using System.Linq
+@model CPTStore.ViewModels.CategoryViewModel
+@using System.Linq;
+@using CPTStore.ViewModels;
 
 @{
     ViewData["Title"] = Model.Category?.Name ?? "Danh mục sản phẩm";
@@ -37,7 +38,7 @@
                     <h5 class="mb-0">Danh mục sản phẩm</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    @foreach (var category in Model.Categories ?? Enumerable.Empty<CPTStore.Models.Category>())
+                    @foreach (var category in Model.Categories ?? new List<Category>())
                     {
                         <a href="@Url.Action("Category", "Product", new { id = category.Id })" 
                            class="list-group-item list-group-item-action @(Model.Category?.Id == category.Id ? "active" : "")">
@@ -132,7 +133,7 @@
 
             <!-- Products Grid -->
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                @foreach (var product in Model.Products ?? Enumerable.Empty<CPTStore.Models.Product>())
+                @foreach (var product in Model.Products ?? Enumerable.Empty<Product>())
                 {
                     <div class="col">
                         <div class="card h-100 product-card">
@@ -145,14 +146,14 @@
                                 <div class="badge bg-danger position-absolute" style="top: 10px; right: 10px">-@product.DiscountPercent%</div>
                             }
                             <a href="@Url.Action("Details", "Product", new { id = product.Id })">
-                                @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                @* @if (!string.IsNullOrEmpty(product.ImageUrl))
                                 {
                                     <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;">
                                 }
                                 else
                                 {
                                     <img src="/images/no-image.png" class="card-img-top" alt="No Image" style="height: 200px; object-fit: cover;">
-                                }
+                                } *@
                             </a>
                             <div class="card-body">
                                 <h5 class="card-title">
@@ -188,7 +189,7 @@
                                 <div class="d-grid gap-2">
                                     @if (product.StockQuantity > 0)
                                     {
-                                        <a href="@Url.Action("AddToCart", "Cart", new { id = product.Id, quantity = 1, returnUrl = Url.Action("Category", "Product", new { id = Model.Category?.Id }) })" class="btn btn-outline-primary">
+                                        <a href="@Url.Action("AddToCart", "Cart", new { productId = product.Id, quantity = 1, returnUrl = Url.Action("Category", "Product", new { id = Model.Category?.Id }) })" class="btn btn-outline-primary">
                                             <i class="bi bi-cart-plus"></i> Thêm vào giỏ
                                         </a>
                                     }

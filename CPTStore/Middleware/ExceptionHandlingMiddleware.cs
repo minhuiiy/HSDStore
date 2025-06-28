@@ -15,32 +15,40 @@ namespace CPTStore.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+        
+        public ExceptionHandlingMiddleware(
+            RequestDelegate next,
+            ILogger<ExceptionHandlingMiddleware> logger)
         {
             _next = next;
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
         {
-            try
-            {
-                await _next(context);
-            }
-            catch (Exception ex)
-            {
-                await HandleExceptionAsync(context, ex);
-            }
+            await _next(context);
         }
-
-        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        catch (Exception ex)
         {
-            _logger.LogError(exception, "Đã xảy ra lỗi: {Message}", exception.Message);
+            await HandleExceptionAsync(context, ex);
+        }
+    }
 
-            var response = context.Response;
+    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    {
+        _logger.LogError(exception, "Đã xảy ra lỗi: {Message}", exception.Message);
+
+        var response = context.Response;
+        
+        // Kiểm tra nếu là yêu cầu AJAX hoặc API
+        bool isApiRequest = context.Request.Path.StartsWithSegments("/api") || 
+                           context.Request.Headers.XRequestedWith == "XMLHttpRequest";
+        
+        if (isApiRequest)
+        {
             response.ContentType = "application/json";
-
             var errorResponse = new ErrorResponse
             {
                 Success = false
@@ -54,9 +62,15 @@ namespace CPTStore.Middleware
                     errorResponse.ErrorCode = (int)orderEx.ErrorCode;
                     break;
 
+                case ArgumentException _:
                 case InvalidOperationException _:
                     response.StatusCode = (int)HttpStatusCode.BadRequest;
                     errorResponse.Message = exception.Message;
+                    break;
+
+                case KeyNotFoundException _:
+                    response.StatusCode = (int)HttpStatusCode.NotFound;
+                    errorResponse.Message = "Không tìm thấy tài nguyên yêu cầu";
                     break;
 
                 case UnauthorizedAccessException _:
@@ -73,8 +87,36 @@ namespace CPTStore.Middleware
             var jsonResponse = JsonSerializer.Serialize(errorResponse);
             await response.WriteAsync(jsonResponse);
         }
+        else
+        {
+            // Xử lý lỗi cho yêu cầu trang web thông thường
+            response.StatusCode = exception switch
+            {
+                OrderServiceException orderEx => GetStatusCodeFromOrderErrorCode(orderEx.ErrorCode),
+                ArgumentException _ => (int)HttpStatusCode.BadRequest,
+                InvalidOperationException _ => (int)HttpStatusCode.BadRequest,
+                KeyNotFoundException _ => (int)HttpStatusCode.NotFound,
+                UnauthorizedAccessException _ => (int)HttpStatusCode.Unauthorized,
+                _ => (int)HttpStatusCode.InternalServerError
+            };
 
-        private int GetStatusCodeFromOrderErrorCode(OrderErrorCode errorCode)
+            string errorMessage = exception switch
+            {
+                OrderServiceException orderEx => orderEx.Message,
+                _ => exception.Message
+            };
+
+            // Lưu thông báo lỗi vào TempData để hiển thị trên trang lỗi
+            context.Items["ErrorMessage"] = errorMessage;
+            
+            // Chuyển hướng đến trang lỗi
+            context.Response.Redirect($"/Error?statusCode={response.StatusCode}&message={WebUtility.UrlEncode(errorMessage)}");
+            // Không cần ghi response vì đã chuyển hướng
+            return;
+        }
+    }
+
+        private static int GetStatusCodeFromOrderErrorCode(OrderErrorCode errorCode)
         {
             return errorCode switch
             {

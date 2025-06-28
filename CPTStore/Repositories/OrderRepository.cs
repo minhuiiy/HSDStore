@@ -56,7 +56,7 @@ namespace CPTStore.Repositories
         {
             return await _context.Orders
                 .IncludeStandardReferences()
-                .Where(o => o.ApplicationUserId == userId)
+                .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
         }

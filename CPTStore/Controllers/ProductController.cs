@@ -3,6 +3,10 @@ using CPTStore.Models;
 using CPTStore.Services;
 using CPTStore.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using CPTStore.ViewModels;
+using System;
+using System.Linq;
+using CPTStore.Extensions;
 
 namespace CPTStore.Controllers
 {
@@ -82,7 +86,7 @@ namespace CPTStore.Controllers
             }
 
             // Ghi lại lượt xem sản phẩm
-            string? userId = User.Identity?.IsAuthenticated == true ? User.FindFirst("sub")?.Value : null;
+            string? userId = User.Identity?.IsAuthenticated == true ? HttpContext.Session.GetUserIdOrSessionId(User) : null;
             await _productService.RecordProductViewAsync(
                 product.Id,
                 userId,
@@ -132,7 +136,7 @@ namespace CPTStore.Controllers
                 return RedirectToAction(nameof(Details), new { id = productId });
             }
 
-            var userId = User.FindFirst("sub")?.Value;
+            var userId = HttpContext.Session.GetUserIdOrSessionId(User);
             var userName = User.Identity?.Name;
 
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(userName))
@@ -162,19 +166,28 @@ namespace CPTStore.Controllers
         {
             if (quantity < 1)
             {
-                return BadRequest("Số lượng phải lớn hơn 0");
+                TempData["Error"] = "Số lượng phải lớn hơn 0";
+                return RedirectToAction("Details", new { id = productId });
             }
 
-            string? userId = User.Identity?.IsAuthenticated == true 
-                ? User.FindFirst("sub")?.Value 
-                : HttpContext.Session.Id;
+            string userId = HttpContext.Session.GetUserIdOrSessionId(User);
 
-            if (string.IsNullOrEmpty(userId))
+            try
             {
-                return Unauthorized();
+                var result = await _cartService.AddToCartAsync(userId, productId, quantity);
+                if (result > 0)
+                {
+                    TempData["Success"] = "Sản phẩm đã được thêm vào giỏ hàng";
+                }
+                else
+                {
+                    TempData["Error"] = "Không thể thêm sản phẩm vào giỏ hàng";
+                }
             }
-
-            await _cartService.AddToCartAsync(userId, productId, quantity);
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Lỗi: {ex.Message}";
+            }
 
             return RedirectToAction("Index", "Cart");
         }

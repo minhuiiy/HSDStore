@@ -185,7 +185,7 @@ namespace CPTStore.Controllers
                 else
                 {
                     // Log error or handle the case where email or callbackUrl is null
-                    return View("Error", new ErrorViewModel { RequestId = "Email reset failed" });
+                    return View("Error", new ErrorViewModel { RequestId = "Email reset failed", Message = "Không thể gửi email đặt lại mật khẩu" });
                 }
 
                 return RedirectToAction(nameof(ForgotPasswordConfirmation));

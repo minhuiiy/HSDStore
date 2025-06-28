@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="40" viewBox="0 0 300 40">
+  <style>
+    .card { fill: #ffffff; stroke: #dddddd; stroke-width: 1; }
+    .visa { fill: #1A1F71; }
+    .mastercard-red { fill: #EB001B; }
+    .mastercard-yellow { fill: #F79E1B; }
+    .mastercard-overlap { fill: #FF5F00; }
+    .jcb { fill: #0E4C96; }
+    .amex { fill: #006FCF; }
+    .momo { fill: #AF1280; }
+    .zalopay { fill: #0068FF; }
+    .vnpay { fill: #004A9C; }
+  </style>
+  
+  <!-- Visa -->
+  <rect x="10" y="5" width="40" height="30" rx="3" class="card"/>
+  <path d="M20 20 L25 12 L30 20 M35 12 L32 20 M15 16 L18 16 L18 20 M40 16 L37 16 L37 20" class="visa"/>
+  
+  <!-- MasterCard -->
+  <rect x="60" y="5" width="40" height="30" rx="3" class="card"/>
+  <circle cx="75" cy="20" r="8" class="mastercard-red"/>
+  <circle cx="85" cy="20" r="8" class="mastercard-yellow"/>
+  <path d="M75 20 A8 8 0 0 0 85 20 A8 8 0 0 0 75 20" class="mastercard-overlap"/>
+  
+  <!-- JCB -->
+  <rect x="110" y="5" width="40" height="30" rx="3" class="card"/>
+  <rect x="115" y="12" width="30" height="16" rx="2" class="jcb"/>
+  <text x="125" y="24" font-family="Arial" font-size="10" fill="white">JCB</text>
+  
+  <!-- Amex -->
+  <rect x="160" y="5" width="40" height="30" rx="3" class="card"/>
+  <rect x="165" y="12" width="30" height="16" rx="2" class="amex"/>
+  <text x="170" y="24" font-family="Arial" font-size="8" fill="white">AMEX</text>
+  
+  <!-- MoMo -->
+  <rect x="210" y="5" width="40" height="30" rx="3" class="card"/>
+  <rect x="215" y="12" width="30" height="16" rx="2" class="momo"/>
+  <text x="217" y="24" font-family="Arial" font-size="8" fill="white">MoMo</text>
+  
+  <!-- ZaloPay -->
+  <rect x="260" y="5" width="40" height="30" rx="3" class="card"/>
+  <rect x="265" y="12" width="30" height="16" rx="2" class="zalopay"/>
+  <text x="267" y="24" font-family="Arial" font-size="7" fill="white">ZaloPay</text>
+</svg>

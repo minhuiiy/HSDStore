@@ -53,7 +53,30 @@ namespace CPTStore.Services
             }
             
             _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                Console.WriteLine($"Lỗi cơ sở dữ liệu khi thêm sản phẩm: {product.Name}, Lỗi: {dbEx.Message}");
+                if (dbEx.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {dbEx.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {dbEx.StackTrace}");
+                throw new InvalidOperationException($"Không thể thêm sản phẩm do lỗi cơ sở dữ liệu: {dbEx.Message}", dbEx);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi thêm sản phẩm: {product.Name}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw new InvalidOperationException($"Không thể thêm sản phẩm: {ex.Message}", ex);
+            }
         }
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync(bool includeOutOfStock = false)
@@ -110,8 +133,31 @@ namespace CPTStore.Services
             }
 
             _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-            return product.Id;
+            try
+            {
+                await _context.SaveChangesAsync();
+                return product.Id;
+            }
+            catch (DbUpdateException dbEx)
+            {
+                Console.WriteLine($"Lỗi cơ sở dữ liệu khi tạo sản phẩm: {product.Name}, Lỗi: {dbEx.Message}");
+                if (dbEx.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {dbEx.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {dbEx.StackTrace}");
+                throw new InvalidOperationException($"Không thể tạo sản phẩm do lỗi cơ sở dữ liệu: {dbEx.Message}", dbEx);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi tạo sản phẩm: {product.Name}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw new InvalidOperationException($"Không thể tạo sản phẩm: {ex.Message}", ex);
+            }
         }
 
         public async Task UpdateProductAsync(Product product)
@@ -123,7 +169,30 @@ namespace CPTStore.Services
             }
 
             _context.Products.Update(product);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                Console.WriteLine($"Lỗi cơ sở dữ liệu khi cập nhật sản phẩm: {product.Name}, Lỗi: {dbEx.Message}");
+                if (dbEx.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {dbEx.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {dbEx.StackTrace}");
+                throw new InvalidOperationException($"Không thể cập nhật sản phẩm do lỗi cơ sở dữ liệu: {dbEx.Message}", dbEx);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi cập nhật sản phẩm: {product.Name}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw new InvalidOperationException($"Không thể cập nhật sản phẩm: {ex.Message}", ex);
+            }
         }
 
         public async Task DeleteProductAsync(int id)
@@ -132,7 +201,30 @@ namespace CPTStore.Services
             if (product != null)
             {
                 _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    Console.WriteLine($"Lỗi cơ sở dữ liệu khi xóa sản phẩm ID: {id}, Lỗi: {dbEx.Message}");
+                    if (dbEx.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner Exception: {dbEx.InnerException.Message}");
+                    }
+                    Console.WriteLine($"Stack Trace: {dbEx.StackTrace}");
+                    throw new InvalidOperationException($"Không thể xóa sản phẩm do lỗi cơ sở dữ liệu: {dbEx.Message}", dbEx);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Lỗi khi xóa sản phẩm ID: {id}, Lỗi: {ex.Message}");
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                    }
+                    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                    throw new InvalidOperationException($"Không thể xóa sản phẩm: {ex.Message}", ex);
+                }
             }
         }
 
@@ -212,10 +304,33 @@ namespace CPTStore.Services
         public async Task AddProductReviewAsync(ProductReview review)
         {
             _context.ProductReviews.Add(review);
-            await _context.SaveChangesAsync();
-
-            // Cập nhật điểm đánh giá trung bình của sản phẩm
-            await UpdateProductRatingAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+                
+                // Cập nhật điểm đánh giá trung bình của sản phẩm
+                await UpdateProductRatingAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                Console.WriteLine($"Lỗi cơ sở dữ liệu khi thêm đánh giá sản phẩm ID: {review.ProductId}, Lỗi: {dbEx.Message}");
+                if (dbEx.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {dbEx.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {dbEx.StackTrace}");
+                throw new InvalidOperationException($"Không thể thêm đánh giá sản phẩm do lỗi cơ sở dữ liệu: {dbEx.Message}", dbEx);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi thêm đánh giá sản phẩm ID: {review.ProductId}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw new InvalidOperationException($"Không thể thêm đánh giá sản phẩm: {ex.Message}", ex);
+            }
         }
 
         private static async Task UpdateProductRatingAsync()

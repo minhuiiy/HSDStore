@@ -6,6 +6,8 @@
 
 <div class="container mt-4">
     <h1>Giỏ hàng</h1>
+    
+    <!-- Thông báo lỗi và thành công đã được hiển thị trong partial view _Notification -->
 
     @if (Model != null && Model.CartItems != null && Model.CartItems.Any())
     {
@@ -35,7 +37,7 @@
                                                 }
                                                 else
                                                 {
-                                                    <img src="/images/no-image.png" alt="No Image" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                                    <img src="/images/no-image.svg" alt="No Image" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: cover;">
                                                 }
                                                 <div>
                                                     <h5 class="mb-0"><a href="@Url.Action("Details", "Product", new { id = item.ProductId })" class="text-decoration-none">@item.Product?.Name</a></h5>
@@ -101,7 +103,7 @@
                             <span class="fw-bold">Tổng cộng:</span>
                             <span class="fw-bold text-danger fs-5">@((Model.TotalAmount + Model.ShippingFee).ToString("N0", System.Globalization.CultureInfo.InvariantCulture)) VNĐ</span>
                         </div>
-                        <a href="@Url.Action("Checkout", "Order")" class="btn btn-success w-100">
+                        <a href="@Url.Action("Checkout", "Cart")" class="btn btn-success w-100">
                             <i class="bi bi-credit-card"></i> Tiến hành thanh toán
                         </a>
                     </div>
@@ -119,10 +121,10 @@
                         <h5 class="mb-0">Mã giảm giá</h5>
                     </div>
                     <div class="card-body">
-                        <form method="post" action="@Url.Action("ApplyCoupon", "Cart")">
+                        <form method="post" action="@Url.Action("ApplyDiscount", "Cart")">
                             @Html.AntiForgeryToken()
                             <div class="input-group">
-                                <input type="text" class="form-control" name="couponCode" placeholder="Nhập mã giảm giá">
+                                <input type="text" class="form-control" name="discountCode" placeholder="Nhập mã giảm giá">
                                 <button class="btn btn-outline-primary" type="submit">Áp dụng</button>
                             </div>
                         </form>

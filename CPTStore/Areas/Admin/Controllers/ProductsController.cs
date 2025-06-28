@@ -18,18 +18,25 @@ namespace CPTStore.Areas.Admin.Controllers
 {
     public partial class ProductsController : AdminControllerBase
     {
-        private readonly IProductService _productService;
-        private readonly ICategoryService _categoryService;
-        private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly ApplicationDbContext _context;
-        
-        public ProductsController(IProductService productService, ICategoryService categoryService, IWebHostEnvironment webHostEnvironment, ApplicationDbContext context)
+        public ProductsController(
+            IProductService productService,
+            ICategoryService categoryService,
+            IWebHostEnvironment webHostEnvironment,
+            ApplicationDbContext context,
+            IInventoryService inventoryService)
         {
             _productService = productService;
             _categoryService = categoryService;
             _webHostEnvironment = webHostEnvironment;
             _context = context;
+            _inventoryService = inventoryService;
         }
+
+        private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ApplicationDbContext _context;
+        private readonly IInventoryService _inventoryService;
 
         // GET: Admin/Products
         public async Task<IActionResult> Index(string searchTerm, int? categoryId, int page = 1, int pageSize = 10)
@@ -47,6 +54,22 @@ namespace CPTStore.Areas.Admin.Controllers
             return View(products);
         }
 
+        // GET: Admin/Products/SynchronizeInventory
+        public async Task<IActionResult> SynchronizeInventory()
+        {
+            try
+            {
+                int syncCount = await _inventoryService.SynchronizeProductStockAsync();
+                TempData["Success"] = $"Đã đồng bộ hóa {syncCount} bản ghi tồn kho thành công";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Lỗi khi đồng bộ hóa tồn kho: {ex.Message}";
+            }
+            
+            return RedirectToAction(nameof(Index));
+        }
+        
         // GET: Admin/Products/Details/5
         public async Task<IActionResult> Details(int id)
         {

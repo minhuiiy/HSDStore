@@ -24,6 +24,9 @@ namespace CPTStore.Models
         
         [NotMapped]
         public decimal ShippingFee { get; set; } = 0;
+        
+        [NotMapped]
+        public decimal Discount { get; set; } = 0;
 
         private decimal CalculateTotalAmount()
         {

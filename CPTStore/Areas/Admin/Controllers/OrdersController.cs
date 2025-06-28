@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CPTStore.Areas.Admin.ViewModels;
 using Microsoft.Extensions.Logging;
+using CPTStore.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace CPTStore.Areas.Admin.Controllers
 {
@@ -15,11 +17,13 @@ namespace CPTStore.Areas.Admin.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly ILogger<OrdersController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public OrdersController(IOrderService orderService, ILogger<OrdersController> logger)
+        public OrdersController(IOrderService orderService, ILogger<OrdersController> logger, ApplicationDbContext context)
         {
             _orderService = orderService;
             _logger = logger;
+            _context = context;
         }
 
         // GET: Admin/Orders
@@ -158,8 +162,13 @@ namespace CPTStore.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                // Bắt đầu giao dịch ở cấp độ controller
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                
                 try
                 {
+                    _logger.LogInformation("Bắt đầu giao dịch để cập nhật đơn hàng ID: {OrderId}", id);
+                    
                     // Lấy đơn hàng hiện tại từ cơ sở dữ liệu
                     var existingOrder = await _orderService.GetOrderByIdAsync(id);
                     if (existingOrder == null)
@@ -175,12 +184,18 @@ namespace CPTStore.Areas.Admin.Controllers
                     // Lưu thay đổi
                     await _orderService.UpdateOrderAsync(existingOrder);
                     
+                    // Commit giao dịch nếu mọi thứ thành công
+                    await transaction.CommitAsync();
+                    _logger.LogInformation("Đã commit giao dịch cập nhật đơn hàng ID: {OrderId}", id);
+                    
                     TempData["SuccessMessage"] = "Đơn hàng đã được cập nhật thành công.";
                     return RedirectToAction(nameof(Details), new { id = existingOrder.Id });
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Lỗi khi cập nhật đơn hàng ID {OrderId}: {Message}", id, ex.Message);
+                    // Rollback giao dịch nếu có lỗi
+                    await transaction.RollbackAsync();
+                    _logger.LogError(ex, "Lỗi khi cập nhật đơn hàng ID {OrderId}, giao dịch đã được rollback: {Message}", id, ex.Message);
                     
                     if (!await OrderExists(order.Id))
                     {
@@ -242,8 +257,13 @@ namespace CPTStore.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatus(int id, string status)
         {
+            // Bắt đầu giao dịch ở cấp độ controller
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            
             try
             {
+                _logger.LogInformation("Bắt đầu giao dịch để cập nhật trạng thái đơn hàng ID: {OrderId}", id);
+                
                 var order = await _orderService.GetOrderByIdAsync(id);
                 if (order == null)
                 {
@@ -255,12 +275,19 @@ namespace CPTStore.Areas.Admin.Controllers
 
                 await _orderService.UpdateOrderAsync(order);
                 
+                // Commit giao dịch nếu mọi thứ thành công
+                await transaction.CommitAsync();
+                _logger.LogInformation("Đã commit giao dịch cập nhật trạng thái đơn hàng ID: {OrderId}", id);
+                
                 TempData["SuccessMessage"] = "Trạng thái đơn hàng đã được cập nhật thành công.";
                 return RedirectToAction(nameof(Details), new { id = order.Id });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Lỗi khi cập nhật trạng thái đơn hàng ID {OrderId}: {Message}", id, ex.Message);
+                // Rollback giao dịch nếu có lỗi
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Lỗi khi cập nhật trạng thái đơn hàng ID {OrderId}, giao dịch đã được rollback: {Message}", id, ex.Message);
+                
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi cập nhật trạng thái đơn hàng: " + ex.Message;
                 return RedirectToAction(nameof(Details), new { id = id });
             }
@@ -299,8 +326,13 @@ namespace CPTStore.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            // Bắt đầu giao dịch ở cấp độ controller
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            
             try
             {
+                _logger.LogInformation("Bắt đầu giao dịch để xóa đơn hàng ID: {OrderId}", id);
+                
                 var order = await _orderService.GetOrderByIdAsync(id);
                 if (order == null)
                 {
@@ -315,12 +347,20 @@ namespace CPTStore.Areas.Admin.Controllers
                 }
 
                 await _orderService.DeleteOrderAsync(id);
+                
+                // Commit giao dịch nếu mọi thứ thành công
+                await transaction.CommitAsync();
+                _logger.LogInformation("Đã commit giao dịch xóa đơn hàng ID: {OrderId}", id);
+                
                 TempData["SuccessMessage"] = "Đơn hàng đã được xóa thành công.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Lỗi khi xóa đơn hàng ID {OrderId}: {Message}", id, ex.Message);
+                // Rollback giao dịch nếu có lỗi
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Lỗi khi xóa đơn hàng ID {OrderId}, giao dịch đã được rollback: {Message}", id, ex.Message);
+                
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi xóa đơn hàng: " + ex.Message;
                 return RedirectToAction(nameof(Index));
             }

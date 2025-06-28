@@ -1,0 +1,40 @@
+@model CPTStore.Models.ErrorViewModel
+@{
+    ViewData["Title"] = $"Lỗi {(Model.StatusCode.HasValue ? $"- {Model.StatusCode}" : "")}";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-5">
+                    <h1 class="display-1 text-danger mb-4">
+                        @(Model.StatusCode.HasValue ? Model.StatusCode.Value.ToString() : "Lỗi")
+                    </h1>
+                    
+                    <h2 class="mb-4">Đã xảy ra lỗi</h2>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Message))
+                    {
+                        <div class="alert alert-danger">
+                            @Model.Message
+                        </div>
+                    }
+                    
+                    @if (Model.ShowRequestId)
+                    {
+                        <p class="text-muted small mb-4">
+                            <strong>Request ID:</strong> <code>@Model.RequestId</code>
+                        </p>
+                    }
+                    
+                    <div class="mt-4">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
+                            <i class="bi bi-house-door"></i> Quay về trang chủ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

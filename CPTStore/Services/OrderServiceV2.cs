@@ -2,6 +2,7 @@ using CPTStore.Data;
 using CPTStore.Models;
 using CPTStore.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using CPTStore.Areas.Admin.ViewModels;
 using CPTStore.Extensions;
 using CPTStore.ViewModels;
@@ -59,45 +60,62 @@ namespace CPTStore.Services
             PaymentMethod paymentMethod,
             string? notes)
         {
-            // Lấy giỏ hàng của người dùng
-            var cartItems = await _cartService.GetCartItemsAsync(userId);
-            if (cartItems.Count == 0)
-            {
-                throw new OrderServiceException("Giỏ hàng trống", OrderErrorCode.EmptyCart);
-            }
+            // Kiểm tra xem đã có giao dịch hiện có chưa
+            var hasExistingTransaction = _context.Database.CurrentTransaction != null;
+            IDbContextTransaction? transaction = null;
 
-            // Kiểm tra tồn kho
-            foreach (var item in cartItems)
+            try
             {
-                if (!await _inventoryService.IsInStockAsync(item.ProductId, item.Quantity))
+                // Chỉ bắt đầu giao dịch mới nếu chưa có giao dịch hiện có
+                if (!hasExistingTransaction)
                 {
-                    throw new OrderServiceException($"Sản phẩm '{item.Product?.Name ?? "Không xác định"}' không đủ số lượng trong kho", OrderErrorCode.InsufficientInventory);
+                    transaction = await _context.Database.BeginTransactionAsync();
+                    _logger.LogInformation("Đã bắt đầu giao dịch mới cho đơn hàng");
                 }
-            }
+                else
+                {
+                    _logger.LogInformation("Sử dụng giao dịch hiện có cho đơn hàng");
+                }
 
-            // Tính tổng tiền
-            decimal subtotal = await _cartService.GetCartTotalAsync(userId);
+                // Lấy giỏ hàng của người dùng
+                var cartItems = await _cartService.GetCartItemsAsync(userId);
+                if (cartItems.Count == 0)
+                {
+                    throw new OrderServiceException("Giỏ hàng trống", OrderErrorCode.EmptyCart);
+                }
 
-            // Lấy thông tin giảm giá (nếu có)
-            var cartDiscount = await _context.CartDiscounts
-                .FirstOrDefaultAsync(cd => cd.UserId == userId);
+                // Kiểm tra tồn kho
+                foreach (var item in cartItems)
+                {
+                    if (!await _inventoryService.IsInStockAsync(item.ProductId, item.Quantity))
+                    {
+                        throw new OrderServiceException($"Sản phẩm '{item.Product?.Name ?? "Không xác định"}' không đủ số lượng trong kho", OrderErrorCode.InsufficientInventory);
+                    }
+                }
 
-            decimal discountAmount = cartDiscount?.DiscountAmount ?? 0;
-            string? discountCode = cartDiscount?.DiscountCode;
+                // Tính tổng tiền
+                decimal subtotal = await _cartService.GetCartTotalAsync(userId);
 
-            // Tạo mã đơn hàng
-            string orderNumber = GenerateOrderNumber();
+                // Lấy thông tin giảm giá (nếu có)
+                var cartDiscount = await _context.CartDiscounts
+                    .FirstOrDefaultAsync(cd => cd.UserId == userId);
 
-            // Tạo đơn hàng mới
-            var order = new Order
-            {
-                UserId = userId,
-                OrderNumber = orderNumber,
-                CustomerName = customerName,
-                PhoneNumber = phoneNumber,
-                Address = address,
-                City = city,
-                PostalCode = postalCode,
+                decimal discountAmount = cartDiscount?.DiscountAmount ?? 0;
+                string? discountCode = cartDiscount?.DiscountCode;
+
+                // Tạo mã đơn hàng
+                string orderNumber = GenerateOrderNumber();
+
+                // Tạo đơn hàng mới
+                var order = new Order
+                {
+                    UserId = userId,
+                    OrderNumber = orderNumber,
+                    CustomerName = customerName,
+                    PhoneNumber = phoneNumber,
+                    Address = address,
+                    City = city,
+                    PostalCode = postalCode,
                 Status = OrderStatus.Pending,
                 PaymentMethod = paymentMethod,
                 PaymentStatus = PaymentStatus.Pending,
@@ -124,24 +142,86 @@ namespace CPTStore.Services
                 };
 
                 _context.OrderItems.Add(orderItem);
+                _logger.LogInformation($"Đã thêm mục đơn hàng: {orderItem.ProductName}, Số lượng: {orderItem.Quantity}");
 
                 // Cập nhật tồn kho
-                await _inventoryService.DeductStockAsync(item.ProductId, item.Quantity);
+                if (!await _inventoryService.DeductStockAsync(item.ProductId, item.Quantity))
+                {
+                    // Nếu không thể cập nhật tồn kho, hủy giao dịch
+                    throw new InvalidOperationException($"Không thể cập nhật tồn kho cho sản phẩm '{item.Product?.Name ?? "Không xác định"}' (ID: {item.ProductId}).");
+                }
+                _logger.LogInformation($"Đã cập nhật tồn kho cho sản phẩm: {item.Product?.Name ?? "Không xác định"} (ID: {item.ProductId})");
             }
 
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Đã lưu tất cả các mục đơn hàng");
 
             // Xóa giỏ hàng
             await _cartService.ClearCartAsync(userId);
+            _logger.LogInformation("Đã xóa giỏ hàng");
 
             // Xóa mã giảm giá đã sử dụng
             if (cartDiscount != null)
             {
                 _context.CartDiscounts.Remove(cartDiscount);
                 await _context.SaveChangesAsync();
+                _logger.LogInformation("Đã xóa mã giảm giá đã sử dụng");
+            }
+
+            // Chỉ commit giao dịch nếu chúng ta đã tạo giao dịch mới và không được gọi từ controller
+            // Controller sẽ quản lý giao dịch ở mức cao hơn
+            if (!hasExistingTransaction && transaction != null)
+            {
+                await transaction.CommitAsync();
+                _logger.LogInformation("Đã hoàn tất giao dịch tạo đơn hàng");
+            }
+            else
+            {
+                _logger.LogInformation("Không commit giao dịch vì đang sử dụng giao dịch hiện có từ controller");
             }
 
             return order;
+        }
+        catch (Exception ex)
+        {
+            // Nếu có lỗi và chúng ta đã tạo giao dịch mới, hủy giao dịch
+            if (!hasExistingTransaction && transaction != null)
+            {
+                try
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError($"Đã hủy giao dịch do lỗi: {ex.Message}");
+                }
+                catch (Exception rollbackEx)
+                {
+                    _logger.LogError($"Lỗi khi hủy giao dịch: {rollbackEx.Message}");
+                    if (rollbackEx.InnerException != null)
+                    {
+                        _logger.LogError($"Inner Exception khi hủy giao dịch: {rollbackEx.InnerException.Message}");
+                    }
+                }
+            }
+            else
+            {
+                _logger.LogWarning($"Không hủy giao dịch vì đang sử dụng giao dịch hiện có hoặc transaction là null");
+            }
+            
+            _logger.LogError($"Lỗi khi tạo đơn hàng cho người dùng {userId}, Lỗi: {ex.Message}");
+            if (ex.InnerException != null)
+            {
+                _logger.LogError($"Inner Exception: {ex.InnerException.Message}");
+            }
+            _logger.LogError($"Stack Trace: {ex.StackTrace}");
+            
+            // Kiểm tra xem ngoại lệ có phải là InvalidOperationException từ khối try bên trong không
+            if (ex is InvalidOperationException && ex.InnerException != null && ex.InnerException.Message.Contains("SqlTransaction has completed"))
+            {
+                // Đây là lỗi giao dịch đã hoàn thành, ghi log chi tiết hơn
+                _logger.LogError("Phát hiện lỗi giao dịch đã hoàn thành, có thể do xung đột giữa các giao dịch");
+            }
+            
+            throw new OrderServiceException($"Lỗi khi tạo đơn hàng: {ex.Message}", OrderErrorCode.GeneralError, ex);
+        }
         }
 
         /// <summary>
@@ -197,7 +277,61 @@ namespace CPTStore.Services
         /// </summary>
         public async Task UpdateOrderAsync(Order order)
         {
-            await _orderRepository.UpdateAsync(order);
+            // Kiểm tra xem đã có giao dịch hiện có chưa
+            var hasExistingTransaction = _context.Database.CurrentTransaction != null;
+            IDbContextTransaction? transaction = null;
+
+            try
+            {
+                // Chỉ bắt đầu giao dịch mới nếu chưa có giao dịch hiện có
+                if (!hasExistingTransaction)
+                {
+                    transaction = await _context.Database.BeginTransactionAsync();
+                    _logger.LogInformation($"Đã bắt đầu giao dịch mới cho cập nhật đơn hàng ID: {order.Id}");
+                }
+                else
+                {
+                    _logger.LogInformation($"Sử dụng giao dịch hiện có cho cập nhật đơn hàng ID: {order.Id}");
+                }
+
+                await _orderRepository.UpdateAsync(order);
+
+                // Hoàn tất giao dịch nếu chúng ta đã tạo giao dịch mới
+                if (!hasExistingTransaction && transaction != null)
+                {
+                    await transaction.CommitAsync();
+                    _logger.LogInformation($"Đã hoàn tất giao dịch cập nhật đơn hàng ID: {order.Id}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Nếu có lỗi và chúng ta đã tạo giao dịch mới, hủy giao dịch
+                if (!hasExistingTransaction && transaction != null)
+                {
+                    try
+                    {
+                        await transaction.RollbackAsync();
+                        _logger.LogError($"Đã hủy giao dịch do lỗi: {ex.Message}");
+                    }
+                    catch (Exception rollbackEx)
+                    {
+                        _logger.LogError($"Lỗi khi hủy giao dịch: {rollbackEx.Message}");
+                        if (rollbackEx.InnerException != null)
+                        {
+                            _logger.LogError($"Inner Exception khi hủy giao dịch: {rollbackEx.InnerException.Message}");
+                        }
+                    }
+                }
+
+                _logger.LogError($"Lỗi khi cập nhật đơn hàng ID: {order.Id}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    _logger.LogError($"Inner Exception: {ex.InnerException.Message}");
+                }
+                _logger.LogError($"Stack Trace: {ex.StackTrace}");
+
+                throw new OrderServiceException($"Lỗi khi cập nhật đơn hàng: {ex.Message}", OrderErrorCode.GeneralError, ex);
+            }
         }
 
         /// <summary>
@@ -205,16 +339,75 @@ namespace CPTStore.Services
         /// </summary>
         public async Task UpdateOrderStatusAsync(int id, OrderStatus status)
         {
-            var order = await _orderRepository.GetByIdAsync(id);
-            if (order == null)
+            // Kiểm tra xem đã có giao dịch hiện có chưa
+            var hasExistingTransaction = _context.Database.CurrentTransaction != null;
+            IDbContextTransaction? transaction = null;
+
+            try
             {
-                throw new OrderServiceException("Không tìm thấy đơn hàng", OrderErrorCode.OrderNotFound);
+                // Chỉ bắt đầu giao dịch mới nếu chưa có giao dịch hiện có
+                if (!hasExistingTransaction)
+                {
+                    transaction = await _context.Database.BeginTransactionAsync();
+                    _logger.LogInformation($"Đã bắt đầu giao dịch mới cho cập nhật trạng thái đơn hàng ID: {id}");
+                }
+                else
+                {
+                    _logger.LogInformation($"Sử dụng giao dịch hiện có cho cập nhật trạng thái đơn hàng ID: {id}");
+                }
+
+                var order = await _orderRepository.GetByIdAsync(id);
+                if (order == null)
+                {
+                    throw new OrderServiceException("Không tìm thấy đơn hàng", OrderErrorCode.OrderNotFound);
+                }
+
+                order.Status = status;
+                order.UpdatedAt = DateTime.Now;
+
+                await _orderRepository.UpdateAsync(order);
+
+                // Chỉ commit giao dịch nếu chúng ta đã tạo giao dịch mới và không được gọi từ controller
+                // Controller sẽ quản lý giao dịch ở mức cao hơn
+                if (!hasExistingTransaction && transaction != null)
+                {
+                    await transaction.CommitAsync();
+                    _logger.LogInformation($"Đã hoàn tất giao dịch cập nhật trạng thái đơn hàng ID: {id}");
+                }
+                else
+                {
+                    _logger.LogInformation($"Không commit giao dịch vì đang sử dụng giao dịch hiện có từ controller");
+                }
             }
+            catch (Exception ex)
+            {
+                // Nếu có lỗi và chúng ta đã tạo giao dịch mới, hủy giao dịch
+                if (!hasExistingTransaction && transaction != null)
+                {
+                    try
+                    {
+                        await transaction.RollbackAsync();
+                        _logger.LogError($"Đã hủy giao dịch do lỗi: {ex.Message}");
+                    }
+                    catch (Exception rollbackEx)
+                    {
+                        _logger.LogError($"Lỗi khi hủy giao dịch: {rollbackEx.Message}");
+                        if (rollbackEx.InnerException != null)
+                        {
+                            _logger.LogError($"Inner Exception khi hủy giao dịch: {rollbackEx.InnerException.Message}");
+                        }
+                    }
+                }
 
-            order.Status = status;
-            order.UpdatedAt = DateTime.Now;
+                _logger.LogError($"Lỗi khi cập nhật trạng thái đơn hàng ID: {id}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    _logger.LogError($"Inner Exception: {ex.InnerException.Message}");
+                }
+                _logger.LogError($"Stack Trace: {ex.StackTrace}");
 
-            await _orderRepository.UpdateAsync(order);
+                throw new OrderServiceException($"Lỗi khi cập nhật trạng thái đơn hàng: {ex.Message}", OrderErrorCode.GeneralError, ex);
+            }
         }
 
         /// <summary>
@@ -222,48 +415,173 @@ namespace CPTStore.Services
         /// </summary>
         public async Task UpdatePaymentStatusAsync(int id, PaymentStatus status, string? transactionId = null)
         {
-            var order = await _orderRepository.GetByIdAsync(id);
-            if (order == null)
+            // Kiểm tra xem đã có giao dịch hiện có chưa
+            var hasExistingTransaction = _context.Database.CurrentTransaction != null;
+            IDbContextTransaction? transaction = null;
+
+            try
             {
-                throw new OrderServiceException("Không tìm thấy đơn hàng", OrderErrorCode.OrderNotFound);
+                // Chỉ bắt đầu giao dịch mới nếu chưa có giao dịch hiện có
+                if (!hasExistingTransaction)
+                {
+                    transaction = await _context.Database.BeginTransactionAsync();
+                    _logger.LogInformation($"Đã bắt đầu giao dịch mới cho cập nhật trạng thái thanh toán đơn hàng ID: {id}");
+                }
+                else
+                {
+                    _logger.LogInformation($"Sử dụng giao dịch hiện có cho cập nhật trạng thái thanh toán đơn hàng ID: {id}");
+                }
+
+                var order = await _orderRepository.GetByIdAsync(id);
+                if (order == null)
+                {
+                    throw new OrderServiceException("Không tìm thấy đơn hàng", OrderErrorCode.OrderNotFound);
+                }
+
+                order.PaymentStatus = status;
+                order.TransactionId = transactionId;
+                order.UpdatedAt = DateTime.Now;
+
+                await _orderRepository.UpdateAsync(order);
+
+                // Hoàn tất giao dịch nếu chúng ta đã tạo giao dịch mới
+                if (!hasExistingTransaction && transaction != null)
+                {
+                    await transaction.CommitAsync();
+                    _logger.LogInformation($"Đã hoàn tất giao dịch cập nhật trạng thái thanh toán đơn hàng ID: {id}");
+                }
             }
+            catch (Exception ex)
+            {
+                // Nếu có lỗi và chúng ta đã tạo giao dịch mới, hủy giao dịch
+                if (!hasExistingTransaction && transaction != null)
+                {
+                    try
+                    {
+                        await transaction.RollbackAsync();
+                        _logger.LogError($"Đã hủy giao dịch do lỗi: {ex.Message}");
+                    }
+                    catch (Exception rollbackEx)
+                    {
+                        _logger.LogError($"Lỗi khi hủy giao dịch: {rollbackEx.Message}");
+                        if (rollbackEx.InnerException != null)
+                        {
+                            _logger.LogError($"Inner Exception khi hủy giao dịch: {rollbackEx.InnerException.Message}");
+                        }
+                    }
+                }
 
-            order.PaymentStatus = status;
-            order.TransactionId = transactionId;
-            order.UpdatedAt = DateTime.Now;
+                _logger.LogError($"Lỗi khi cập nhật trạng thái thanh toán đơn hàng ID: {id}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    _logger.LogError($"Inner Exception: {ex.InnerException.Message}");
+                }
+                _logger.LogError($"Stack Trace: {ex.StackTrace}");
 
-            await _orderRepository.UpdateAsync(order);
+                throw new OrderServiceException($"Lỗi khi cập nhật trạng thái thanh toán đơn hàng: {ex.Message}", OrderErrorCode.GeneralError, ex);
+            }
         }
 
         /// <summary>
-        /// Hủy đơn hàng
+        /// Hủy đơn hàng với ID được chỉ định
         /// </summary>
         public async Task<bool> CancelOrderAsync(int id)
         {
-            var order = await _orderRepository.GetByIdAsync(id);
-            if (order == null)
+            return await CancelOrderAsync(id, userId: null!);
+        }
+
+        /// <summary>
+        /// Hủy đơn hàng với ID và userId được chỉ định
+        /// </summary>
+        public async Task<bool> CancelOrderAsync(int id, string userId)
+        {
+            // Kiểm tra xem đã có giao dịch hiện có chưa
+            var hasExistingTransaction = _context.Database.CurrentTransaction != null;
+            IDbContextTransaction? transaction = null;
+
+            try
             {
-                return false;
-            }
+                // Chỉ bắt đầu giao dịch mới nếu chưa có giao dịch hiện có
+                if (!hasExistingTransaction)
+                {
+                    transaction = await _context.Database.BeginTransactionAsync();
+                    _logger.LogInformation($"Đã bắt đầu giao dịch mới cho hủy đơn hàng ID: {id}");
+                }
+                else
+                {
+                    _logger.LogInformation($"Sử dụng giao dịch hiện có cho hủy đơn hàng ID: {id}");
+                }
 
-            // Chỉ cho phép hủy đơn hàng ở trạng thái Pending hoặc Processing
-            if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.Processing)
+                var order = await _orderRepository.GetByIdAsync(id);
+                if (order == null)
+                {
+                    _logger.LogWarning($"Không tìm thấy đơn hàng ID: {id} để hủy");
+                    return false;
+                }
+
+                // Chỉ cho phép hủy đơn hàng ở trạng thái Pending hoặc Processing
+                if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.Processing)
+                {
+                    _logger.LogWarning($"Không thể hủy đơn hàng ID: {id} vì trạng thái hiện tại là {order.Status}");
+                    return false;
+                }
+
+                // Cập nhật trạng thái đơn hàng
+                order.Status = OrderStatus.Cancelled;
+                order.UpdatedAt = DateTime.Now;
+
+                // Hoàn trả số lượng vào kho
+                foreach (var item in order.OrderItems)
+                {
+                    if (!await _inventoryService.RestockAsync(item.ProductId, item.Quantity))
+                    {
+                        throw new InvalidOperationException($"Không thể hoàn trả số lượng vào kho cho sản phẩm ID: {item.ProductId}");
+                    }
+                    _logger.LogInformation($"Đã hoàn trả {item.Quantity} sản phẩm ID: {item.ProductId} vào kho");
+                }
+
+                await _orderRepository.UpdateAsync(order);
+                _logger.LogInformation($"Đã cập nhật trạng thái đơn hàng ID: {id} thành Cancelled");
+
+                // Chỉ commit giao dịch nếu chúng ta đã tạo giao dịch mới và không được gọi từ controller
+                // Controller sẽ quản lý giao dịch ở mức cao hơn
+                if (!hasExistingTransaction && transaction != null)
+                {
+                    await transaction.CommitAsync();
+                    _logger.LogInformation($"Đã hoàn tất giao dịch hủy đơn hàng ID: {id}");
+                }
+
+                return true;
+            }
+            catch (Exception ex)
             {
-                return false;
+                // Nếu có lỗi và chúng ta đã tạo giao dịch mới, hủy giao dịch
+                if (!hasExistingTransaction && transaction != null)
+                {
+                    try
+                    {
+                        await transaction.RollbackAsync();
+                        _logger.LogError($"Đã hủy giao dịch do lỗi: {ex.Message}");
+                    }
+                    catch (Exception rollbackEx)
+                    {
+                        _logger.LogError($"Lỗi khi hủy giao dịch: {rollbackEx.Message}");
+                        if (rollbackEx.InnerException != null)
+                        {
+                            _logger.LogError($"Inner Exception khi hủy giao dịch: {rollbackEx.InnerException.Message}");
+                        }
+                    }
+                }
+
+                _logger.LogError($"Lỗi khi hủy đơn hàng ID: {id}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    _logger.LogError($"Inner Exception: {ex.InnerException.Message}");
+                }
+                _logger.LogError($"Stack Trace: {ex.StackTrace}");
+
+                throw new OrderServiceException($"Lỗi khi hủy đơn hàng: {ex.Message}", OrderErrorCode.GeneralError, ex);
             }
-
-            // Cập nhật trạng thái đơn hàng
-            order.Status = OrderStatus.Cancelled;
-            order.UpdatedAt = DateTime.Now;
-
-            // Hoàn trả số lượng vào kho
-            foreach (var item in order.OrderItems)
-            {
-                await _inventoryService.RestockAsync(item.ProductId, item.Quantity);
-            }
-
-            await _orderRepository.UpdateAsync(order);
-            return true;
         }
 
         /// <summary>
@@ -271,7 +589,61 @@ namespace CPTStore.Services
         /// </summary>
         public async Task DeleteOrderAsync(int id)
         {
-            await _orderRepository.DeleteAsync(id);
+            // Kiểm tra xem đã có giao dịch hiện có chưa
+            var hasExistingTransaction = _context.Database.CurrentTransaction != null;
+            IDbContextTransaction? transaction = null;
+
+            try
+            {
+                // Chỉ bắt đầu giao dịch mới nếu chưa có giao dịch hiện có
+                if (!hasExistingTransaction)
+                {
+                    transaction = await _context.Database.BeginTransactionAsync();
+                    _logger.LogInformation($"Đã bắt đầu giao dịch mới cho xóa đơn hàng ID: {id}");
+                }
+                else
+                {
+                    _logger.LogInformation($"Sử dụng giao dịch hiện có cho xóa đơn hàng ID: {id}");
+                }
+
+                await _orderRepository.DeleteAsync(id);
+
+                // Hoàn tất giao dịch nếu chúng ta đã tạo giao dịch mới
+                if (!hasExistingTransaction && transaction != null)
+                {
+                    await transaction.CommitAsync();
+                    _logger.LogInformation($"Đã hoàn tất giao dịch xóa đơn hàng ID: {id}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Nếu có lỗi và chúng ta đã tạo giao dịch mới, hủy giao dịch
+                if (!hasExistingTransaction && transaction != null)
+                {
+                    try
+                    {
+                        await transaction.RollbackAsync();
+                        _logger.LogError($"Đã hủy giao dịch do lỗi: {ex.Message}");
+                    }
+                    catch (Exception rollbackEx)
+                    {
+                        _logger.LogError($"Lỗi khi hủy giao dịch: {rollbackEx.Message}");
+                        if (rollbackEx.InnerException != null)
+                        {
+                            _logger.LogError($"Inner Exception khi hủy giao dịch: {rollbackEx.InnerException.Message}");
+                        }
+                    }
+                }
+
+                _logger.LogError($"Lỗi khi xóa đơn hàng ID: {id}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    _logger.LogError($"Inner Exception: {ex.InnerException.Message}");
+                }
+                _logger.LogError($"Stack Trace: {ex.StackTrace}");
+
+                throw new OrderServiceException($"Lỗi khi xóa đơn hàng: {ex.Message}", OrderErrorCode.GeneralError, ex);
+            }
         }
 
         /// <summary>
@@ -427,7 +799,7 @@ namespace CPTStore.Services
                 .GroupBy(o => new { o.UserId, o.CustomerName })
                 .Select(g => new TopCustomerData
                 {
-                    UserId = g.Key.UserId,
+                    UserId = g.Key.UserId ?? string.Empty,
                     CustomerName = g.Key.CustomerName,
                     Email = g.FirstOrDefault()?.Email ?? string.Empty,
                     OrderCount = g.Count(),

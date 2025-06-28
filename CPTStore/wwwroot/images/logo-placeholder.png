@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80" viewBox="0 0 200 80">
+  <style>
+    .logo-text { font-family: Arial, sans-serif; font-weight: bold; }
+    .placeholder { fill: #cccccc; }
+    .text { fill: #666666; }
+  </style>
+  <rect x="10" y="20" width="40" height="40" rx="5" class="placeholder"/>
+  <text x="60" y="50" class="logo-text text" font-size="28">CPT Store</text>
+  <text x="15" y="45" class="logo-text" fill="white" font-size="18">CPT</text>
+</svg>

@@ -140,7 +140,7 @@
                         </div>
                         <div class="card-footer d-flex justify-content-between">
                             <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="btn btn-sm btn-primary">Chi tiết</a>
-                            <form method="post" action="@Url.Action("AddToCart", "Product")">
+                            <form method="post" action="@Url.Action("AddToCartPost", "Cart")">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="productId" value="@product.Id" />
                                 <input type="hidden" name="quantity" value="1" />
@@ -201,7 +201,7 @@
                         </div>
                         <div class="card-footer d-flex justify-content-between">
                             <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="btn btn-sm btn-primary">Chi tiết</a>
-                            <form method="post" action="@Url.Action("AddToCart", "Product")">
+                            <form method="post" action="@Url.Action("AddToCartPost", "Cart")">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="productId" value="@product.Id" />
                                 <input type="hidden" name="quantity" value="1" />

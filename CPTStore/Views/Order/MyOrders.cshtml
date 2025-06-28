@@ -59,6 +59,22 @@
                     </ul>
                 </div>
                 <div class="card-body">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    
                     @if (Model != null && Model.Any())
                     {
                         <div class="table-responsive">
@@ -78,7 +94,7 @@
                                     {
                                         <tr>
                                             <td><a href="@Url.Action("Details", "Order", new { id = order.Id })" class="text-decoration-none">#@order.OrderReference</a></td>
-                                            <td>@(order.OrderDate != default(DateTime) ? order.OrderDate.ToString("dd/MM/yyyy HH:mm") : order.CreatedAt.ToString("dd/MM/yyyy HH:mm"))</td>
+                                            <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
                                             <td>@order.TotalAmount.ToString("N0") VNĐ</td>
                                             <td>
                                                 <span class="badge @(order.Status == OrderStatus.Delivered ? "bg-success" : order.Status == OrderStatus.Cancelled ? "bg-danger" : order.Status == OrderStatus.Shipped ? "bg-info" : order.Status == OrderStatus.Processing ? "bg-primary" : "bg-warning")">@order.Status</span>
@@ -91,13 +107,9 @@
                                                     <a href="@Url.Action("Details", "Order", new { id = order.Id })" class="btn btn-sm btn-outline-primary">Chi tiết</a>
                                                     @if (order.Status == OrderStatus.Pending || order.Status == OrderStatus.Processing)
                                                     {
-                                                        <form method="post" action="@Url.Action("CancelOrder", "Order")" class="d-inline">
-                                                            @Html.AntiForgeryToken()
-                                                            <input type="hidden" name="orderId" value="@order.Id" />
-                                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
-                                                                Hủy
-                                                            </button>
-                                                        </form>
+                                                        <a href="@Url.Action("CancelOrder", "Order", new { id = order.Id })" class="btn btn-sm btn-outline-danger">
+                                                            Hủy
+                                                        </a>
                                                     }
                                                 </div>
                                             </td>
