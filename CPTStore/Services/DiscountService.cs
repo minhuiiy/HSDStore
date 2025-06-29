@@ -65,7 +65,20 @@ namespace CPTStore.Services
                 }
 
                 discount.UpdatedAt = DateTime.UtcNow;
-                _context.Discounts.Update(discount);
+                
+                // Kiểm tra xem entity đã được theo dõi chưa
+                var existingDiscount = await _context.Discounts.FindAsync(discount.Id);
+                if (existingDiscount != null)
+                {
+                    // Cập nhật các thuộc tính của entity đã được theo dõi
+                    _context.Entry(existingDiscount).CurrentValues.SetValues(discount);
+                }
+                else
+                {
+                    // Nếu entity chưa được theo dõi, thêm vào context
+                    _context.Discounts.Update(discount);
+                }
+                
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)

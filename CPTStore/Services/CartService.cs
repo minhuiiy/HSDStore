@@ -324,7 +324,7 @@ namespace CPTStore.Services
             {
                 cartDiscount.DiscountCode = discountCode;
                 cartDiscount.DiscountAmount = discountAmount;
-                _context.CartDiscounts.Update(cartDiscount);
+                _context.Entry(cartDiscount).State = EntityState.Modified;
             }
 
             await _context.SaveChangesAsync();

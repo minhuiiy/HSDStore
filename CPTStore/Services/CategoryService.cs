@@ -76,7 +76,19 @@ namespace CPTStore.Services
                 category.Slug = GenerateSlug(category.Name);
             }
 
-            _context.Categories.Update(category);
+            // Kiểm tra xem entity đã được theo dõi chưa
+            var existingCategory = await _context.Categories.FindAsync(category.Id);
+            if (existingCategory != null)
+            {
+                // Cập nhật các thuộc tính của entity đã được theo dõi
+                _context.Entry(existingCategory).CurrentValues.SetValues(category);
+            }
+            else
+            {
+                // Nếu entity chưa được theo dõi, thêm vào context
+                _context.Categories.Update(category);
+            }
+            
             await _context.SaveChangesAsync();
         }
 

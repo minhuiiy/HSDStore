@@ -175,7 +175,8 @@ namespace CPTStore.Services
                 savedDiscount.IsUsed = true;
                 savedDiscount.UsedDate = DateTime.UtcNow;
 
-                _context.SavedDiscounts.Update(savedDiscount);
+                // Sử dụng Entry để cập nhật thay vì Update để tránh lỗi tracking
+                _context.Entry(savedDiscount).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException dbEx)
@@ -220,7 +221,8 @@ namespace CPTStore.Services
                 savedDiscount.IsUsed = true;
                 savedDiscount.UsedDate = DateTime.UtcNow;
 
-                _context.SavedDiscounts.Update(savedDiscount);
+                // Sử dụng Entry để cập nhật thay vì Update để tránh lỗi tracking
+                _context.Entry(savedDiscount).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException dbEx)

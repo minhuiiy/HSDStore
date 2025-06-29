@@ -47,7 +47,8 @@ namespace CPTStore.Services
                 user.MembershipLevel = MembershipLevel.Regular;
             }
 
-            _context.Users.Update(user);
+            // Sử dụng Entry để cập nhật thay vì Update để tránh lỗi tracking
+            _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
 
@@ -97,7 +98,15 @@ namespace CPTStore.Services
 
         public async Task UpdateMembershipDiscountAsync(MembershipDiscount discount)
         {
-            _context.MembershipDiscounts.Update(discount);
+            // Tìm discount hiện có trong database
+            var existingDiscount = await _context.MembershipDiscounts.FindAsync(discount.Id);
+            if (existingDiscount == null)
+            {
+                throw new InvalidOperationException($"Không tìm thấy membership discount với ID: {discount.Id}");
+            }
+
+            // Cập nhật các thuộc tính của discount hiện có
+            _context.Entry(existingDiscount).CurrentValues.SetValues(discount);
             await _context.SaveChangesAsync();
         }
 

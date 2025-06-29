@@ -252,7 +252,15 @@ namespace CPTStore.Repositories
         /// <returns>Task</returns>
         public async Task UpdateAsync(Order order)
         {
-            _context.Orders.Update(order);
+            // Tìm đơn hàng hiện có trong database
+            var existingOrder = await _context.Orders.FindAsync(order.Id);
+            if (existingOrder == null)
+            {
+                throw new InvalidOperationException($"Không tìm thấy đơn hàng với ID: {order.Id}");
+            }
+
+            // Cập nhật các thuộc tính của đơn hàng hiện có
+            _context.Entry(existingOrder).CurrentValues.SetValues(order);
             await _context.SaveChangesAsync();
         }
 

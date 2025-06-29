@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\CPTStore.csproj": {}
+    "C:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\CPTStore.csproj": {}
   },
   "projects": {
-    "c:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\CPTStore.csproj": {
+    "C:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\CPTStore.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\CPTStore.csproj",
+        "projectUniqueName": "C:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\CPTStore.csproj",
         "projectName": "CPTStore",
-        "projectPath": "c:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\CPTStore.csproj",
+        "projectPath": "C:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\CPTStore.csproj",
         "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\obj\\",
+        "outputPath": "C:\\Users\\ADMIN\\source\\repos\\CPTStore\\CPTStore\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\DevExpress 24.1\\Components\\Offline Packages",
