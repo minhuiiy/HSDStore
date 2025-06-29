@@ -1,4 +1,5 @@
-@model CPTStore.Models.Order
+@model CPTStore.Areas.Admin.ViewModels.OrderEditViewModel
+@model CPTStore.Areas.Admin.ViewModels.OrderEditViewModel
 @using CPTStore.Models
 @{
     ViewData["Title"] = "Cập nhật trạng thái đơn hàng";
@@ -7,9 +8,9 @@
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Cập nhật trạng thái đơn hàng #@Model.OrderNumber</h1>
+        <h1 class="h3 mb-0 text-gray-800">Cập nhật trạng thái đơn hàng #@Model.Order.OrderNumber</h1>
         <div>
-            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">
+            <a asp-action="Details" asp-route-id="@Model.Order.Id" class="btn btn-info">
                 <i class="bi bi-info-circle"></i> Xem chi tiết
             </a>
             <a asp-action="Index" class="btn btn-secondary">
@@ -26,25 +27,19 @@
                 </div>
                 <div class="card-body">
                     <form asp-action="UpdateStatus" method="post">
-                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="Order.Id" />
                         
                         <div class="row mb-3">
                             <label class="col-md-3 col-form-label">Trạng thái hiện tại:</label>
                             <div class="col-md-9">
-                                <input type="text" value="@Model.Status" class="form-control" readonly />
+                                <input type="text" value="@Model.Order.Status" class="form-control" readonly />
                             </div>
                         </div>
                         
                         <div class="row mb-3">
                             <label class="col-md-3 col-form-label">Trạng thái mới:</label>
                             <div class="col-md-9">
-                                <select name="status" class="form-select">
-                                    <option value="Pending" selected="@(Model.Status == OrderStatus.Pending)">Chờ xác nhận</option>
-                                    <option value="Processing" selected="@(Model.Status == OrderStatus.Processing)">Đang xử lý</option>
-                                    <option value="Shipped" selected="@(Model.Status == OrderStatus.Shipped)">Đang giao hàng</option>
-                                    <option value="Delivered" selected="@(Model.Status == OrderStatus.Delivered)">Đã giao hàng</option>
-                                    <option value="Cancelled" selected="@(Model.Status == OrderStatus.Cancelled)">Đã hủy</option>
-                                </select>
+                                <select name="status" asp-items="Model.OrderStatuses" class="form-select"></select>
                             </div>
                         </div>
                         

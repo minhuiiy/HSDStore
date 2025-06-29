@@ -10,6 +10,7 @@ using CPTStore.Areas.Admin.ViewModels;
 using Microsoft.Extensions.Logging;
 using CPTStore.Data;
 using Microsoft.EntityFrameworkCore;
+using CPTStore.Services;
 
 namespace CPTStore.Areas.Admin.Controllers
 {
@@ -130,17 +131,21 @@ namespace CPTStore.Areas.Admin.Controllers
                     return NotFound();
                 }
 
-                // Lấy danh sách trạng thái đơn hàng để hiển thị trong dropdown
-                ViewBag.OrderStatuses = Enum.GetValues(typeof(OrderStatus))
-                    .Cast<OrderStatus>()
-                    .Select(s => new SelectListItem
-                    {
-                        Value = s.ToString(),
-                        Text = s.ToString(),
-                        Selected = s.ToString() == order.Status.ToString()
-                    }).ToList();
+                // Tạo OrderEditViewModel
+                var viewModel = new OrderEditViewModel
+                {
+                    Order = order,
+                    OrderStatuses = Enum.GetValues(typeof(OrderStatus))
+                        .Cast<OrderStatus>()
+                        .Select(s => new SelectListItem
+                        {
+                            Value = s.ToString(),
+                            Text = s.ToString(),
+                            Selected = s.ToString() == order.Status.ToString()
+                        }).ToList()
+                };
                     
-                return View(order);
+                return View(viewModel);
             }
             catch (Exception ex)
             {
@@ -153,9 +158,9 @@ namespace CPTStore.Areas.Admin.Controllers
         // POST: Admin/Orders/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Status,Notes")] Order order)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Status,Notes")] Order orderUpdate)
         {
-            if (id != order.Id)
+            if (id != orderUpdate.Id)
             {
                 return NotFound();
             }
@@ -177,8 +182,8 @@ namespace CPTStore.Areas.Admin.Controllers
                     }
 
                     // Cập nhật thông tin đơn hàng
-                    existingOrder.Status = order.Status;
-                    existingOrder.Notes = order.Notes;
+                    existingOrder.Status = orderUpdate.Status;
+                    existingOrder.Notes = orderUpdate.Notes;
                     existingOrder.UpdatedAt = DateTime.Now;
 
                     // Lưu thay đổi
@@ -197,7 +202,7 @@ namespace CPTStore.Areas.Admin.Controllers
                     await transaction.RollbackAsync();
                     _logger.LogError(ex, "Lỗi khi cập nhật đơn hàng ID {OrderId}, giao dịch đã được rollback: {Message}", id, ex.Message);
                     
-                    if (!await OrderExists(order.Id))
+                    if (!await OrderExists(orderUpdate.Id))
                     {
                         return NotFound();
                     }
@@ -208,17 +213,28 @@ namespace CPTStore.Areas.Admin.Controllers
                 }
             }
 
-            // Nếu ModelState không hợp lệ, chuẩn bị lại danh sách trạng thái
-            ViewBag.OrderStatuses = Enum.GetValues(typeof(OrderStatus))
-                .Cast<OrderStatus>()
-                .Select(s => new SelectListItem
-                {
-                    Value = s.ToString(),
-                    Text = s.ToString(),
-                    Selected = s.ToString() == order.Status.ToString()
-                }).ToList();
+            // Nếu ModelState không hợp lệ hoặc có lỗi, lấy lại đơn hàng từ database để hiển thị
+            var order = await _orderService.GetOrderByIdAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            
+            // Tạo OrderEditViewModel để trả về view
+            var viewModel = new OrderEditViewModel
+            {
+                Order = order,
+                OrderStatuses = Enum.GetValues(typeof(OrderStatus))
+                    .Cast<OrderStatus>()
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.ToString(),
+                        Text = s.ToString(),
+                        Selected = s.ToString() == orderUpdate.Status.ToString()
+                    }).ToList()
+            };
                 
-            return View(order);
+            return View(viewModel);
         }
 
         // GET: Admin/Orders/UpdateStatus/5
@@ -232,17 +248,21 @@ namespace CPTStore.Areas.Admin.Controllers
                     return NotFound();
                 }
 
-                // Lấy danh sách trạng thái đơn hàng để hiển thị trong dropdown
-                ViewBag.OrderStatuses = Enum.GetValues(typeof(OrderStatus))
-                    .Cast<OrderStatus>()
-                    .Select(s => new SelectListItem
-                    {
-                        Value = s.ToString(),
-                        Text = s.ToString(),
-                        Selected = s.ToString() == order.Status.ToString()
-                    }).ToList();
+                // Tạo OrderEditViewModel
+                var viewModel = new OrderEditViewModel
+                {
+                    Order = order,
+                    OrderStatuses = Enum.GetValues(typeof(OrderStatus))
+                        .Cast<OrderStatus>()
+                        .Select(s => new SelectListItem
+                        {
+                            Value = s.ToString(),
+                            Text = s.ToString(),
+                            Selected = s.ToString() == order.Status.ToString()
+                        }).ToList()
+                };
 
-                return View(order);
+                return View(viewModel);
             }
             catch (Exception ex)
             {
