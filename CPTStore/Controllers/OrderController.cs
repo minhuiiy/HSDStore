@@ -12,8 +12,27 @@ using CPTStore.Data;
 namespace CPTStore.Controllers
 {
     [Authorize]
-    public class OrderController(IOrderService orderService, ICartService cartService, IPaymentService paymentService, IEmailService emailService, IInventoryService inventoryService, ILogger<OrderController> logger, ApplicationDbContext context) : Controller
+    public class OrderController : Controller
     {
+        private readonly IOrderService _orderService;
+        private readonly ICartService _cartService;
+        private readonly IPaymentService _paymentService;
+        private readonly IEmailService _emailService;
+        private readonly IInventoryService _inventoryService;
+        private readonly ILogger<OrderController> _logger;
+        private readonly ApplicationDbContext _context;
+
+        public OrderController(IOrderService orderService, ICartService cartService, IPaymentService paymentService, IEmailService emailService, IInventoryService inventoryService, ILogger<OrderController> logger, ApplicationDbContext context)
+        {
+            _orderService = orderService;
+            _cartService = cartService;
+            _paymentService = paymentService;
+            _emailService = emailService;
+            _inventoryService = inventoryService;
+            _logger = logger;
+            _context = context;
+        }
+
         private bool ViewExists(string viewName)
         {
             try
@@ -28,13 +47,6 @@ namespace CPTStore.Controllers
                 return false;
             }
         }
-        private readonly IOrderService _orderService = orderService;
-        private readonly ICartService _cartService = cartService;
-        private readonly IPaymentService _paymentService = paymentService;
-        private readonly IEmailService _emailService = emailService;
-        private readonly IInventoryService _inventoryService = inventoryService;
-        private readonly ILogger<OrderController> _logger = logger;
-        private readonly ApplicationDbContext _context = context;
 
         // GET: /Order/MyOrders
         [AllowAnonymous]
@@ -83,21 +95,21 @@ namespace CPTStore.Controllers
                 return NotFound();
             }
             
-            // Kiểm tra quyền sở hữu đơn hàng
-            bool isOwner = false;
+            // Kiểm tra quyền truy cập đơn hàng
+            bool hasAccess = false;
             
-            // Kiểm tra nếu người dùng đã đăng nhập và đơn hàng có UserId
-            if (User.Identity.IsAuthenticated && order.UserId != null)
+            // Nếu đơn hàng có UserId và trùng với userId hiện tại
+            if (order.UserId != null && order.UserId == userId)
             {
-                isOwner = order.UserId == userId;
+                hasAccess = true;
             }
-            // Kiểm tra nếu người dùng chưa đăng nhập và đơn hàng có SessionId
-            else if (!User.Identity.IsAuthenticated && order.SessionId != null)
+            // Hoặc nếu đơn hàng có SessionId và trùng với userId hiện tại
+            else if (order.SessionId != null && order.SessionId == userId)
             {
-                isOwner = order.SessionId == userId;
+                hasAccess = true;
             }
             
-            if (!isOwner)
+            if (!hasAccess)
             {
                 return NotFound();
             }
@@ -333,7 +345,7 @@ namespace CPTStore.Controllers
         public async Task<IActionResult> Cancel(int id)
         {
             // Bắt đầu giao dịch ở cấp độ controller
-            using var transaction = await context.Database.BeginTransactionAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
             
             try
             {
@@ -588,7 +600,7 @@ namespace CPTStore.Controllers
             try
             {
                 // Bắt đầu giao dịch ở mức controller
-                using var transaction = await context.Database.BeginTransactionAsync();
+                using var transaction = await _context.Database.BeginTransactionAsync();
                 _logger.LogInformation("Bắt đầu giao dịch để hủy đơn hàng ID: {OrderId}", orderId);
                 
                 var success = await _orderService.CancelOrderAsync(orderId);
@@ -624,10 +636,10 @@ namespace CPTStore.Controllers
             catch (Exception ex)
             {
                 // Rollback giao dịch nếu có lỗi
-                if (context.Database.CurrentTransaction != null)
+                if (_context.Database.CurrentTransaction != null)
                 {
                     try {
-                        await context.Database.CurrentTransaction.RollbackAsync();
+                        await _context.Database.CurrentTransaction.RollbackAsync();
                         _logger.LogError(ex, "Lỗi khi hủy đơn hàng ID {OrderId}, giao dịch đã được rollback: {Message}", orderId, ex.Message);
                     } catch (InvalidOperationException txEx) when (txEx.Message.Contains("has completed")) {
                         // Giao dịch đã được xử lý trong OrderService

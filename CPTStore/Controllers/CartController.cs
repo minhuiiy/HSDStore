@@ -346,12 +346,12 @@ namespace CPTStore.Controllers
         // POST: /Cart/ApplyDiscount
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApplyDiscount(string discountCode)
+        public async Task<IActionResult> ApplyDiscount(string discountCode, string? returnUrl = null)
         {
             if (string.IsNullOrWhiteSpace(discountCode))
             {
                 TempData["Error"] = "Vui lòng nhập mã giảm giá";
-                return RedirectToAction(nameof(Index));
+                return !string.IsNullOrEmpty(returnUrl) ? Redirect(returnUrl) : RedirectToAction(nameof(Index));
             }
 
             string userId = HttpContext.Session.GetUserIdOrSessionId(User);
@@ -366,7 +366,7 @@ namespace CPTStore.Controllers
                 TempData["Error"] = ex.Message;
             }
 
-            return RedirectToAction(nameof(Index));
+            return !string.IsNullOrEmpty(returnUrl) ? Redirect(returnUrl) : RedirectToAction(nameof(Index));
         }
         
         // POST: /Cart/ApplyDiscountAjax

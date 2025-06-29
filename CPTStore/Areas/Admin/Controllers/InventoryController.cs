@@ -65,7 +65,7 @@ namespace CPTStore.Areas.Admin.Controllers
         // GET: Admin/Inventory/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var inventory = await _inventoryService.GetInventoryByProductIdAsync(id);
+            var inventory = await _inventoryService.GetInventoryByIdAsync(id);
             if (inventory == null)
             {
                 return NotFound();

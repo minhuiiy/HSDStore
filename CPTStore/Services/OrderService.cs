@@ -124,9 +124,9 @@ namespace CPTStore.Services
                         // Tạo đơn hàng mới
                         var order = new Order
                         {
-                            // Nếu userId không tồn tại trong bảng AspNetUsers, đặt UserId = null và lưu sessionId
+                            // Nếu userId không tồn tại trong bảng AspNetUsers, đặt UserId = null
                             UserId = userExists ? userId : null,
-                            // Lưu sessionId nếu người dùng chưa đăng nhập
+                            // Lưu SessionId khi người dùng chưa đăng nhập
                             SessionId = !userExists ? userId : null,
                             OrderNumber = orderNumber,
                             CustomerName = customerName,
@@ -320,49 +320,38 @@ namespace CPTStore.Services
         }
 
         public async Task<IEnumerable<Order>> GetUserOrdersAsync(string userId)
-    {
-        try
         {
-            // Kiểm tra nếu userId là null hoặc rỗng
-            if (string.IsNullOrEmpty(userId))
+            try
             {
-                // Trả về danh sách rỗng nếu userId không hợp lệ
-                return new List<Order>();
-            }
+                // Kiểm tra nếu userId là null hoặc rỗng
+                if (string.IsNullOrEmpty(userId))
+                {
+                    // Trả về danh sách rỗng nếu userId không hợp lệ
+                    return new List<Order>();
+                }
 
-            // Kiểm tra xem userId có phải là ID người dùng đã đăng nhập hay là sessionId
-            var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
-            
-            if (userExists)
-            {
-                // Nếu là ID người dùng đã đăng nhập, lấy đơn hàng theo UserId
+                // Kiểm tra xem userId có tồn tại trong bảng AspNetUsers không
+                var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+
+                // Nếu userId tồn tại trong bảng AspNetUsers, tìm theo UserId
+                // Nếu không, tìm theo SessionId
                 return await _context.Orders
                     .IncludeStandardReferences()
-                    .Where(o => o.UserId == userId)
+                    .Where(o => (userExists && o.UserId == userId) || (!userExists && o.SessionId == userId))
                     .OrderByDescending(o => o.CreatedAt)
                     .ToListAsync();
             }
-            else
+            catch (Exception ex)
             {
-                // Nếu là sessionId (người dùng chưa đăng nhập), lấy đơn hàng theo SessionId
-                return await _context.Orders
-                    .IncludeStandardReferences()
-                    .Where(o => o.SessionId == userId)
-                    .OrderByDescending(o => o.CreatedAt)
-                    .ToListAsync();
+                Console.WriteLine($"Lỗi khi lấy danh sách đơn hàng của người dùng: {userId}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw new InvalidOperationException($"Không thể lấy danh sách đơn hàng: {ex.Message}", ex);
             }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Lỗi khi lấy danh sách đơn hàng của người dùng: {userId}, Lỗi: {ex.Message}");
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-            }
-            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
-            throw new InvalidOperationException($"Không thể lấy danh sách đơn hàng: {ex.Message}", ex);
-        }
-    }
 
         public async Task<IEnumerable<Order>> GetAllOrdersAsync(OrderStatus? status = null)
         {
@@ -555,6 +544,11 @@ namespace CPTStore.Services
 
         public async Task<bool> CancelOrderAsync(int id)
         {
+            return await CancelOrderAsync(id, null!);
+        }
+
+        public async Task<bool> CancelOrderAsync(int id, string? userId)
+        {
             try
             {
                 // Sử dụng khóa để đảm bảo chỉ có một luồng có thể hủy đơn hàng tại một thời điểm
@@ -567,6 +561,13 @@ namespace CPTStore.Services
                 if (order is null)
                 {
                     throw new ArgumentException("Đơn hàng không tồn tại");
+                }
+
+                // Nếu userId được cung cấp, kiểm tra xem đơn hàng có thuộc về người dùng không
+                if (!string.IsNullOrEmpty(userId) && order.UserId != userId)
+                {
+                    _logger.LogWarning($"Người dùng {userId} không có quyền hủy đơn hàng ID: {id}");
+                    return false;
                 }
 
                 // Chỉ cho phép hủy đơn hàng ở trạng thái Pending hoặc Processing
@@ -834,7 +835,7 @@ namespace CPTStore.Services
                 .GroupBy(o => new { o.UserId, o.CustomerName, o.Email })
                 .Select(g => new TopCustomerData
                 {
-                    UserId = g.Key.UserId,
+                    UserId = g.Key.UserId ?? string.Empty,
                     CustomerName = g.Key.CustomerName,
                     Email = g.Key.Email ?? string.Empty,
                     OrderCount = g.Count(),
@@ -958,7 +959,7 @@ namespace CPTStore.Services
             // Kiểm tra xem đã có giao dịch hiện tại chưa
             var currentTransaction = _context.Database.CurrentTransaction;
             var isNewTransaction = currentTransaction == null;
-            IDbContextTransaction transaction = null;
+            IDbContextTransaction? transaction = null;
             
             try
             {
@@ -1058,52 +1059,6 @@ namespace CPTStore.Services
                 }
                 
                 throw new InvalidOperationException($"Không thể xóa đơn hàng: {ex.Message}", ex);
-            }
-        }
-        
-        public async Task<bool> CancelOrderAsync(int id, string userId)
-        {
-            try
-            {
-                _logger.LogInformation("Bắt đầu hủy đơn hàng ID: {OrderId} cho người dùng ID: {UserId}", id, userId);
-                
-                var order = await _context.Orders
-                    .Include(o => o.OrderItems)
-                    .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
-                    
-                if (order == null)
-                {
-                    _logger.LogWarning("Không tìm thấy đơn hàng ID: {OrderId} cho người dùng ID: {UserId} để hủy", id, userId);
-                    return false;
-                }
-                
-                // Chỉ cho phép hủy đơn hàng ở trạng thái Chờ xử lý hoặc Đang xử lý
-                if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.Processing)
-                {
-                    _logger.LogWarning("Không thể hủy đơn hàng ID: {OrderId} vì trạng thái hiện tại là {Status}", id, order.Status);
-                    return false;
-                }
-                
-                // Cập nhật trạng thái đơn hàng thành Đã hủy
-                order.Status = OrderStatus.Cancelled;
-                order.UpdatedAt = DateTime.Now;
-                
-                // Hoàn trả số lượng sản phẩm vào kho
-                foreach (var item in order.OrderItems)
-                {
-                    await _inventoryService.RestockAsync(item.ProductId, item.Quantity);
-                    _logger.LogInformation("Đã hoàn trả {Quantity} sản phẩm ID: {ProductId} vào kho", item.Quantity, item.ProductId);
-                }
-                
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Đã hủy thành công đơn hàng ID: {OrderId} cho người dùng ID: {UserId}", id, userId);
-                
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Lỗi khi hủy đơn hàng ID: {OrderId} cho người dùng ID: {UserId}, Chi tiết: {Message}", id, userId, ex.Message);
-                throw new InvalidOperationException($"Không thể hủy đơn hàng: {ex.Message}", ex);
             }
         }
     }

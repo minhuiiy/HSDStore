@@ -144,6 +144,9 @@ function setupCheckoutForm() {
                 
                 // Cập nhật tổng tiền nếu có phí xử lý thanh toán
                 updatePaymentFee(this.value);
+                
+                // Lưu giá trị vào localStorage
+                saveFormData();
             });
         });
     }
@@ -155,9 +158,23 @@ function setupCheckoutForm() {
             method.addEventListener('change', function() {
                 // Cập nhật phí vận chuyển
                 updateShippingFee(this.value);
+                
+                // Lưu giá trị vào localStorage
+                saveFormData();
             });
         });
     }
+    
+    // Lưu dữ liệu form khi người dùng nhập
+    var formInputs = document.querySelectorAll('#checkoutForm input, #checkoutForm textarea');
+    formInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            saveFormData();
+        });
+    });
+    
+    // Khôi phục dữ liệu form từ localStorage nếu có
+    restoreFormData();
     
     // Xử lý form thanh toán khi submit
     var checkoutForm = document.getElementById('checkoutForm');
@@ -167,9 +184,21 @@ function setupCheckoutForm() {
             
             // Kiểm tra hợp lệ form
             if (validateCheckoutForm()) {
+                // Lưu dữ liệu form trước khi submit
+                saveFormData();
+                // Đánh dấu form đang được gửi để xóa dữ liệu sau khi đặt hàng thành công
+                localStorage.setItem('checkoutFormSubmitted', 'true');
                 // Gửi form
                 this.submit();
             }
+        });
+    }
+    
+    // Lưu dữ liệu form khi người dùng áp dụng mã giảm giá
+    var discountForm = document.querySelector('form[action*="ApplyDiscount"]');
+    if (discountForm) {
+        discountForm.addEventListener('submit', function() {
+            saveFormData();
         });
     }
 }
@@ -294,6 +323,70 @@ function isValidEmail(email) {
 function isValidPhone(phone) {
     var re = /^[0-9]{10,11}$/;
     return re.test(phone);
+}
+
+// Hàm lưu dữ liệu form vào localStorage
+function saveFormData() {
+    if (!document.getElementById('checkoutForm')) return;
+    
+    var formData = {};
+    
+    // Lưu các trường input
+    document.querySelectorAll('#checkoutForm input:not([type="hidden"]):not([type="submit"]), #checkoutForm textarea').forEach(input => {
+        if (input.type === 'radio' || input.type === 'checkbox') {
+            if (input.checked) {
+                formData[input.name] = input.value;
+            }
+        } else {
+            formData[input.name || input.id] = input.value;
+        }
+    });
+    
+    // Lưu vào localStorage
+    localStorage.setItem('checkoutFormData', JSON.stringify(formData));
+}
+
+// Hàm khôi phục dữ liệu form từ localStorage
+function restoreFormData() {
+    if (!document.getElementById('checkoutForm')) return;
+    
+    // Kiểm tra xem form đã được submit thành công chưa
+    var formSubmitted = localStorage.getItem('checkoutFormSubmitted');
+    if (formSubmitted === 'true') {
+        // Nếu form đã được submit thành công, xóa dữ liệu và không khôi phục
+        localStorage.removeItem('checkoutFormData');
+        localStorage.removeItem('checkoutFormSubmitted');
+        return;
+    }
+    
+    var savedData = localStorage.getItem('checkoutFormData');
+    if (!savedData) return;
+    
+    try {
+        var formData = JSON.parse(savedData);
+        
+        // Khôi phục các trường input
+        for (var key in formData) {
+            var input = document.querySelector(`#checkoutForm input[name="${key}"], #checkoutForm input#${key}, #checkoutForm textarea[name="${key}"], #checkoutForm textarea#${key}`);
+            if (input) {
+                if (input.type === 'radio' || input.type === 'checkbox') {
+                    var radioOrCheckbox = document.querySelector(`#checkoutForm input[name="${key}"][value="${formData[key]}"]`);
+                    if (radioOrCheckbox) {
+                        radioOrCheckbox.checked = true;
+                        // Kích hoạt sự kiện change để hiển thị/ẩn các trường liên quan
+                        var event = new Event('change');
+                        radioOrCheckbox.dispatchEvent(event);
+                    }
+                } else {
+                    input.value = formData[key];
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error restoring form data:', error);
+        // Xóa dữ liệu lỗi
+        localStorage.removeItem('checkoutFormData');
+    }
 }
 
 // This section contains code that belongs to a function already defined above

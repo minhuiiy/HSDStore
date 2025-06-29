@@ -109,7 +109,7 @@ namespace CPTStore.Services
                     // Kiểm tra nếu có sự không nhất quán giữa Product.Stock và Inventory.Quantity
                     if (product.Stock != existingInventory.Quantity)
                     {
-                        Console.WriteLine($"Phát hiện không nhất quán cho sản phẩm ID: {product.Id}, Tên: {product.Name}");
+                        Console.WriteLine($"Phát hiện không nhất quán cho sản phẩm ID: {product.Id}, Tên: {product.Name ?? "không xác định"}");
                         Console.WriteLine($"Product.Stock: {product.Stock}, Inventory.Quantity: {existingInventory.Quantity}");
                         
                         // Sử dụng giá trị lớn hơn để đảm bảo không bị lỗi hết hàng
@@ -149,26 +149,26 @@ namespace CPTStore.Services
                         if (transaction != null)
                         await transaction.CommitAsync();
                 }
-                Console.WriteLine($"Đã tạo mới inventory cho sản phẩm ID: {product.Id}, Tên: {product.Name}, Số lượng: {product.Stock}");
+                Console.WriteLine($"Đã tạo mới inventory cho sản phẩm ID: {product.Id}, Tên: {product.Name ?? "không xác định"}, Số lượng: {product.Stock}");
                 
                 return inventory;
             }
             catch (DbUpdateException dbEx)
             {
-                string errorMessage = $"Lỗi cơ sở dữ liệu khi tạo inventory từ sản phẩm ID: {product.Id}, Tên: {product.Name}";
+                string errorMessage = $"Lỗi cơ sở dữ liệu khi tạo inventory từ sản phẩm ID: {product.Id}, Tên: {product.Name ?? "không xác định"}";
                 await HandleDbUpdateExceptionAsync(dbEx, transaction, errorMessage, false);
                 return null;
             }
             catch (Exception ex)
             {
-                string errorMessage = $"Lỗi khi tạo inventory từ sản phẩm ID: {product.Id}, Tên: {product.Name}";
+                string errorMessage = $"Lỗi khi tạo inventory từ sản phẩm ID: {product.Id}, Tên: {product.Name ?? "không xác định"}";
                 await HandleExceptionAsync(ex, transaction, errorMessage);
                 return null;
             }
         }
         catch (Exception ex)
         {
-            string errorMessage = $"Lỗi ngoại lệ khi tạo inventory từ sản phẩm ID: {product.Id}, Tên: {product.Name}";
+            string errorMessage = $"Lỗi ngoại lệ khi tạo inventory từ sản phẩm ID: {product.Id}, Tên: {product.Name ?? "không xác định"}";
             await HandleExceptionAsync(ex, null, errorMessage);
             return null;
         }
@@ -814,22 +814,24 @@ namespace CPTStore.Services
                 }
                 
                 // Cập nhật thông tin
-                inventory.UpdatedAt = DateTime.UtcNow;
-                _context.Inventories.Update(inventory);
+                existingInventory.Quantity = inventory.Quantity;
+                existingInventory.MinimumStockLevel = inventory.MinimumStockLevel;
+                existingInventory.MaximumStockLevel = inventory.MaximumStockLevel;
+                existingInventory.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
                 
                 // Đồng bộ với bảng Product
-                var product = await _context.Products.FindAsync(inventory.ProductId);
-                if (product != null && product.Stock != inventory.Quantity)
+                var product = await _context.Products.FindAsync(existingInventory.ProductId);
+                if (product != null && product.Stock != existingInventory.Quantity)
                 {
-                    product.Stock = inventory.Quantity;
+                    product.Stock = existingInventory.Quantity;
                     await _context.SaveChangesAsync();
-                    Console.WriteLine($"Đã đồng bộ số lượng tồn kho với sản phẩm ID: {product.Id}, Số lượng: {inventory.Quantity}");
+                    Console.WriteLine($"Đã đồng bộ số lượng tồn kho với sản phẩm ID: {product.Id}, Số lượng: {existingInventory.Quantity}");
                 }
                 
                 // Hoàn tất giao dịch
                 await transaction.CommitAsync();
-                Console.WriteLine($"Đã cập nhật inventory thành công cho sản phẩm ID: {inventory.ProductId}, Số lượng: {inventory.Quantity}");
+                Console.WriteLine($"Đã cập nhật inventory thành công cho sản phẩm ID: {existingInventory.ProductId}, Số lượng: {existingInventory.Quantity}");
             }
             catch (DbUpdateException dbEx)
             {
@@ -949,7 +951,7 @@ namespace CPTStore.Services
         /// </summary>
         /// <param name="id">ID của tồn kho cần lấy</param>
         /// <returns>Thông tin tồn kho nếu tìm thấy, null nếu không tìm thấy hoặc có lỗi</returns>
-        public async Task<Inventory> GetInventoryByIdAsync(int id)
+        public async Task<Inventory?> GetInventoryByIdAsync(int id)
         {
             try
             {
@@ -995,20 +997,20 @@ namespace CPTStore.Services
                     Console.WriteLine("Đang thử đồng bộ hóa lại tồn kho...");
                     await SynchronizeProductStockAsync();
                     
-                    return null!;
+                    return null;
                 }
                 catch (Exception ex)
                 {
                     string errorMessage = $"Lỗi khi lấy thông tin tồn kho ID {id}";
                     await HandleExceptionAsync(ex, transaction, errorMessage);
-                    return null!;
+                    return null;
                 }
             }
             catch (Exception ex)
             {
                 string errorMessage = $"Lỗi ngoại lệ khi lấy thông tin tồn kho ID {id}";
                 await HandleExceptionAsync(ex, null, errorMessage);
-                return null!;
+                return null;
             }
         }
 

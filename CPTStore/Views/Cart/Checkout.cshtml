@@ -271,6 +271,7 @@
                     <form method="post" action="@Url.Action("ApplyDiscount", "Cart")" class="d-flex mb-3">
                         @Html.AntiForgeryToken()
                         <input type="text" id="discountCodeInput" name="discountCode" class="form-control me-2" placeholder="Nhập mã giảm giá">
+                        <input type="hidden" name="returnUrl" value="@Url.Action("Checkout", "Cart")" />
                         <button type="submit" class="btn btn-primary">Áp dụng</button>
                     </form>
                     
@@ -358,8 +359,18 @@
                                 button.addEventListener('click', function() {
                                     const code = this.getAttribute('data-code');
                                     document.getElementById('discountCodeInput').value = code;
+                                    // Đảm bảo returnUrl được thiết lập
+                                    const form = this.closest('.card-body').querySelector('form');
+                                    let returnUrlInput = form.querySelector('input[name="returnUrl"]');
+                                    if (!returnUrlInput) {
+                                        returnUrlInput = document.createElement('input');
+                                        returnUrlInput.type = 'hidden';
+                                        returnUrlInput.name = 'returnUrl';
+                                        returnUrlInput.value = window.location.pathname;
+                                        form.appendChild(returnUrlInput);
+                                    }
                                     // Tự động submit form
-                                    this.closest('.card-body').querySelector('form').submit();
+                                    form.submit();
                                 });
                             });
                         } else {

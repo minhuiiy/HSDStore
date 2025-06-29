@@ -82,9 +82,9 @@
                             <span asp-validation-for="Discount" class="text-danger"></span>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="form-group mb-3">
                             <label asp-for="Stock" class="form-label">Số lượng tồn kho</label>
-                            <input asp-for="Stock" class="form-control" type="number" min="0" required />
+                            <input asp-for="Stock" class="form-control stock-input" type="number" min="0" required />
                             <span asp-validation-for="Stock" class="text-danger"></span>
                         </div>
 
@@ -156,6 +156,14 @@
                 $(".currency-input").each(function() {
                     var numericValue = $(this).val().replace(/[^0-9]/g, '');
                     $(this).val(numericValue);
+                });
+                
+                // Đảm bảo trường Stock được xử lý đúng cách
+                $(".stock-input").each(function() {
+                    var stockValue = $(this).val();
+                    if(stockValue === '') {
+                        $(this).val('0');
+                    }
                 });
                 return true;
             });

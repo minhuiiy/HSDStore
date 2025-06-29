@@ -6,6 +6,7 @@ namespace CPTStore.Services
 {
     public interface IInventoryService
     {
+        Task<Inventory?> GetInventoryByIdAsync(int id);
         Task<Inventory?> GetInventoryByProductIdAsync(int productId);
         Task<IEnumerable<Inventory>> GetAllInventoriesAsync();
         Task<IEnumerable<Inventory>> GetLowStockInventoriesAsync();
