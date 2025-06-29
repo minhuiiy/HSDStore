@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CPTStore")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+04c30c529e38cf5fc8652d0d062f8861f61532fe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b2c0f9441e4144334cda8760e2dd170aad11fac6")]
 [assembly: System.Reflection.AssemblyProductAttribute("CPTStore")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CPTStore")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -923,13 +923,13 @@ namespace CPTStore.Services
                         return syncedInventory;
                     }
                     
-                    return null!;
+                    return null;
                 }
                 catch (Exception ex)
                 {
                     string errorMessage = $"Lỗi khi lấy thông tin tồn kho cho sản phẩm ID: {productId}";
                     await HandleExceptionAsync(ex, transaction, errorMessage);
-                    return null!;
+                    return null;
                 }
             }
             catch (Exception ex)
@@ -942,7 +942,7 @@ namespace CPTStore.Services
                     Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
                 }
                 Console.WriteLine($"Stack Trace: {ex.StackTrace}");
-                return null!;
+                return null;
             }
         }
 

@@ -544,7 +544,7 @@ namespace CPTStore.Services
 
         public async Task<bool> CancelOrderAsync(int id)
         {
-            return await CancelOrderAsync(id, null!);
+            return await CancelOrderAsync(id, null);
         }
 
         public async Task<bool> CancelOrderAsync(int id, string? userId)

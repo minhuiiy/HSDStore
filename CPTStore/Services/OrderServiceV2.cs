@@ -487,13 +487,13 @@ namespace CPTStore.Services
         /// </summary>
         public async Task<bool> CancelOrderAsync(int id)
         {
-            return await CancelOrderAsync(id, userId: null!);
+            return await CancelOrderAsync(id, userId: null);
         }
 
         /// <summary>
         /// Hủy đơn hàng với ID và userId được chỉ định
         /// </summary>
-        public async Task<bool> CancelOrderAsync(int id, string userId)
+        public async Task<bool> CancelOrderAsync(int id, string? userId)
         {
             // Kiểm tra xem đã có giao dịch hiện có chưa
             var hasExistingTransaction = _context.Database.CurrentTransaction != null;

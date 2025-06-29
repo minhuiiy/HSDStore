@@ -1,5 +1,4 @@
 @model CPTStore.Areas.Admin.ViewModels.OrderEditViewModel
-@model CPTStore.Areas.Admin.ViewModels.OrderEditViewModel
 @using CPTStore.Models
 @{
     ViewData["Title"] = "Cập nhật trạng thái đơn hàng";
@@ -61,27 +60,27 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Khách hàng:</label>
-                        <p>@Model.CustomerName</p>
+                        <p>@Model.Order.CustomerName</p>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Email:</label>
-                        <p>@Model.Email</p>
+                        <p>@Model.Order.CustomerEmail</p>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Số điện thoại:</label>
-                        <p>@Model.PhoneNumber</p>
+                        <p>@Model.Order.CustomerPhone</p>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Địa chỉ:</label>
-                        <p>@Model.Address</p>
+                        <p>@Model.Order.ShippingAddress</p>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Ngày đặt hàng:</label>
-                        <p>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                        <p>@Model.Order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Tổng tiền:</label>
-                        <p class="text-primary fw-bold">@Model.TotalAmount.ToString("#,##0") VNĐ</p>
+                        <p class="text-primary fw-bold">@Model.Order.TotalAmount.ToString("#,##0") VNĐ</p>
                     </div>
                 </div>
             </div>
