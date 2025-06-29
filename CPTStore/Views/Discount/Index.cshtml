@@ -1,4 +1,6 @@
 @model CPTStore.ViewModels.DiscountViewModel
+@using System.Linq;
+@using CPTStore.Models;
 @{
     ViewData["Title"] = "Mã giảm giá";
 }
@@ -248,7 +250,7 @@
                                     {
                                         <tr>
                                             <td>
-                                                <discount-badge code="@savedDiscount.DiscountCode" is-used="@savedDiscount.IsUsed"></discount-badge>
+                                                <discount-badge code="@savedDiscount.DiscountCode" is-used="@savedDiscount.IsUsed" type="@(savedDiscount.Discount?.DiscountType ?? DiscountType.Percentage)" value="@(savedDiscount.Discount?.Value ?? 0)"></discount-badge>
                                             </td>
                                             <td>@savedDiscount.SavedDate.ToString("dd/MM/yyyy HH:mm")</td>
                                             <td>

@@ -162,20 +162,29 @@ namespace CPTStore.Services
 
         public async Task UpdateProductAsync(Product product)
         {
-            // Tạo slug từ tên sản phẩm nếu chưa có
             if (string.IsNullOrEmpty(product.Slug))
             {
                 product.Slug = GenerateSlug(product.Name);
             }
 
-            _context.Products.Update(product);
             try
             {
+                // Tìm sản phẩm hiện có trong database
+                var existingProduct = await _context.Products.FindAsync(product.Id);
+                if (existingProduct == null)
+                {
+                    throw new InvalidOperationException($"Không tìm thấy sản phẩm với ID: {product.Id}");
+                }
+
+                // Cập nhật các thuộc tính của sản phẩm hiện có
+                _context.Entry(existingProduct).CurrentValues.SetValues(product);
+                
+                // Lưu thay đổi vào database
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException dbEx)
             {
-                Console.WriteLine($"Lỗi cơ sở dữ liệu khi cập nhật sản phẩm: {product.Name}, Lỗi: {dbEx.Message}");
+                Console.WriteLine($"Lỗi cơ sở dữ liệu khi cập nhật sản phẩm ID: {product.Id}, Lỗi: {dbEx.Message}");
                 if (dbEx.InnerException != null)
                 {
                     Console.WriteLine($"Inner Exception: {dbEx.InnerException.Message}");
@@ -185,7 +194,7 @@ namespace CPTStore.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Lỗi khi cập nhật sản phẩm: {product.Name}, Lỗi: {ex.Message}");
+                Console.WriteLine($"Lỗi khi cập nhật sản phẩm ID: {product.Id}, Lỗi: {ex.Message}");
                 if (ex.InnerException != null)
                 {
                     Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
@@ -197,34 +206,98 @@ namespace CPTStore.Services
 
         public async Task DeleteProductAsync(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            try
             {
-                _context.Products.Remove(product);
+                // Sử dụng transaction để đảm bảo tính nhất quán
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                
                 try
                 {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateException dbEx)
-                {
-                    Console.WriteLine($"Lỗi cơ sở dữ liệu khi xóa sản phẩm ID: {id}, Lỗi: {dbEx.Message}");
-                    if (dbEx.InnerException != null)
+                    // Xóa các bản ghi liên quan trước
+                    // Xóa OrderItems liên quan đến sản phẩm
+                    var orderItems = await _context.OrderItems.Where(oi => oi.ProductId == id).ToListAsync();
+                    if (orderItems.Any())
                     {
-                        Console.WriteLine($"Inner Exception: {dbEx.InnerException.Message}");
+                        _context.OrderItems.RemoveRange(orderItems);
+                        await _context.SaveChangesAsync();
                     }
-                    Console.WriteLine($"Stack Trace: {dbEx.StackTrace}");
-                    throw new InvalidOperationException($"Không thể xóa sản phẩm do lỗi cơ sở dữ liệu: {dbEx.Message}", dbEx);
+                    
+                    // Xóa CartItems liên quan đến sản phẩm
+                    var cartItems = await _context.CartItems.Where(ci => ci.ProductId == id).ToListAsync();
+                    if (cartItems.Any())
+                    {
+                        _context.CartItems.RemoveRange(cartItems);
+                        await _context.SaveChangesAsync();
+                    }
+                    
+                    // Xóa Inventory liên quan đến sản phẩm
+                    var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == id);
+                    if (inventory != null)
+                    {
+                        _context.Inventories.Remove(inventory);
+                        await _context.SaveChangesAsync();
+                    }
+                    
+                    // Xóa ProductViews liên quan đến sản phẩm
+                    var productViews = await _context.ProductViews.Where(pv => pv.ProductId == id).ToListAsync();
+                    if (productViews.Any())
+                    {
+                        _context.ProductViews.RemoveRange(productViews);
+                        await _context.SaveChangesAsync();
+                    }
+                    
+                    // Xóa ProductReviews liên quan đến sản phẩm
+                    var productReviews = await _context.ProductReviews.Where(pr => pr.ProductId == id).ToListAsync();
+                    if (productReviews.Any())
+                    {
+                        _context.ProductReviews.RemoveRange(productReviews);
+                        await _context.SaveChangesAsync();
+                    }
+                    
+                    // Cuối cùng, xóa sản phẩm
+                    var product = await _context.Products.FindAsync(id);
+                    if (product != null)
+                    {
+                        _context.Products.Remove(product);
+                        await _context.SaveChangesAsync();
+                    }
+                    
+                    // Commit transaction nếu tất cả thành công
+                    await transaction.CommitAsync();
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Lỗi khi xóa sản phẩm ID: {id}, Lỗi: {ex.Message}");
+                    // Rollback transaction nếu có lỗi
+                    await transaction.RollbackAsync();
+                    
+                    Console.WriteLine($"Lỗi trong transaction khi xóa sản phẩm ID: {id}, Lỗi: {ex.Message}");
                     if (ex.InnerException != null)
                     {
                         Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
                     }
                     Console.WriteLine($"Stack Trace: {ex.StackTrace}");
-                    throw new InvalidOperationException($"Không thể xóa sản phẩm: {ex.Message}", ex);
+                    throw; // Re-throw để controller xử lý
                 }
+            }
+            catch (DbUpdateException dbEx)
+            {
+                Console.WriteLine($"Lỗi cơ sở dữ liệu khi xóa sản phẩm ID: {id}, Lỗi: {dbEx.Message}");
+                if (dbEx.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {dbEx.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {dbEx.StackTrace}");
+                throw new InvalidOperationException($"Không thể xóa sản phẩm do lỗi cơ sở dữ liệu: {dbEx.Message}", dbEx);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi xóa sản phẩm ID: {id}, Lỗi: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw new InvalidOperationException($"Không thể xóa sản phẩm: {ex.Message}", ex);
             }
         }
 

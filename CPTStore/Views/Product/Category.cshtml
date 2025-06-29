@@ -146,14 +146,14 @@
                                 <div class="badge bg-danger position-absolute" style="top: 10px; right: 10px">-@product.DiscountPercent%</div>
                             }
                             <a href="@Url.Action("Details", "Product", new { id = product.Id })">
-                                @* @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                @if (!string.IsNullOrEmpty(product.ImageUrl))
                                 {
                                     <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;">
                                 }
                                 else
                                 {
                                     <img src="/images/no-image.png" class="card-img-top" alt="No Image" style="height: 200px; object-fit: cover;">
-                                } *@
+                                }
                             </a>
                             <div class="card-body">
                                 <h5 class="card-title">

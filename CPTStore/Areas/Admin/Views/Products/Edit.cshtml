@@ -124,30 +124,28 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
     <script>
-        $(document).ready(function () {
-            // Xem trước hình ảnh khi chọn file
-            $("#imageFile").change(function () {
-                readURL(this);
-            });
-
-            function readURL(input) {
-                if (input.files && input.files[0]) {
-                    var reader = new FileReader();
-                    reader.onload = function (e) {
-                        $('#imagePreview').attr('src', e.target.result);
-                        $('#imagePreview').removeClass('d-none');
-                    }
-                    reader.readAsDataURL(input.files[0]);
-                }
-            }
-
-            // Định dạng tiền tệ
-            $(".currency-input").on("input", function() {
-                formatCurrency($(this));
-            });
-
+        $(document).ready(function() {
+            // Định dạng các trường tiền tệ khi trang tải
             $(".currency-input").each(function() {
                 formatCurrency($(this));
+            });
+
+            // Định dạng khi người dùng nhập liệu
+            $(".currency-input").on('input', function() {
+                formatCurrency($(this));
+            });
+
+            // Xử lý xem trước hình ảnh khi người dùng chọn file
+            $("#imageFile").change(function() {
+                var fileInput = this;
+                if (fileInput.files && fileInput.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $("#imagePreview").attr('src', e.target.result);
+                        $("#imagePreview").removeClass('d-none');
+                    }
+                    reader.readAsDataURL(fileInput.files[0]);
+                }
             });
 
             function formatCurrency(input) {

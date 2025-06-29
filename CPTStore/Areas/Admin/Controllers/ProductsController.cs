@@ -125,8 +125,8 @@ namespace CPTStore.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var categories = await _categoryService.GetAllCategoriesAsync();
-            ViewBag.Categories = new SelectList(categories, "Id", "Name", product.CategoryId);
+            // Nếu ModelState không hợp lệ, hiển thị lại form với danh sách categories
+            ViewBag.Categories = new SelectList(await _categoryService.GetAllCategoriesAsync(), "Id", "Name", product.CategoryId);
             return View(product);
         }
 
@@ -158,7 +158,32 @@ namespace CPTStore.Areas.Admin.Controllers
             {
                 try
                 {
-                    // Xử lý tải lên hình ảnh
+                    // Lấy sản phẩm hiện tại từ database
+                    var existingProduct = await _productService.GetProductByIdAsync(id);
+                    if (existingProduct == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Lưu lại đường dẫn hình ảnh cũ
+                    string oldImageUrl = existingProduct.ImageUrl ?? string.Empty;
+
+                    // Cập nhật các thuộc tính của sản phẩm hiện tại
+                    existingProduct.Name = product.Name;
+                    existingProduct.SKU = product.SKU;
+                    existingProduct.Description = product.Description;
+                    existingProduct.ShortDescription = product.ShortDescription;
+                    existingProduct.Price = product.Price;
+                    // OriginalPrice là thuộc tính chỉ đọc, được tính từ Price + Discount
+                    existingProduct.Discount = product.Discount;
+                    existingProduct.CategoryId = product.CategoryId;
+                    existingProduct.Stock = product.Stock;
+                    existingProduct.IsAvailable = product.IsAvailable;
+                    existingProduct.MetaDescription = product.MetaDescription;
+                    existingProduct.MetaKeywords = product.MetaKeywords;
+                    existingProduct.UpdatedAt = DateTime.Now;
+
+                    // Xử lý tải lên hình ảnh mới
                     if (imageFile != null && imageFile.Length > 0)
                     {
                         var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products");
@@ -176,34 +201,48 @@ namespace CPTStore.Areas.Admin.Controllers
                         }
 
                         // Xóa ảnh cũ nếu có
-                        var oldProduct = await _productService.GetProductByIdAsync(id);
-                        if (!string.IsNullOrEmpty(oldProduct?.ImageUrl))
+                        if (!string.IsNullOrEmpty(oldImageUrl))
                         {
-                            var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, oldProduct.ImageUrl.TrimStart('/'));
+                            var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, oldImageUrl.TrimStart('/'));
                             if (System.IO.File.Exists(oldImagePath))
                             {
                                 System.IO.File.Delete(oldImagePath);
                             }
                         }
 
-                        product.ImageUrl = "/images/products/" + uniqueFileName;
+                        existingProduct.ImageUrl = "/images/products/" + uniqueFileName;
+                    }
+                    else if (product.ImageUrl != null)
+                    {
+                        // Giữ lại URL hình ảnh hiện tại nếu không có hình ảnh mới được tải lên
+                        existingProduct.ImageUrl = product.ImageUrl;
                     }
 
                     // Cập nhật slug nếu tên thay đổi
-                    product.Slug = CreateSlug(product.Name);
-                    product.UpdatedAt = DateTime.Now;
+                    existingProduct.Slug = CreateSlug(existingProduct.Name);
 
-                    await _productService.UpdateProductAsync(product);
+                    // Sử dụng phương thức UpdateProductAsync đã cập nhật
+                    await _productService.UpdateProductAsync(existingProduct);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    // Ghi log lỗi
+                    Console.WriteLine($"Lỗi khi cập nhật sản phẩm: {ex.Message}");
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                    }
+                    
                     if (!await ProductExists(product.Id))
                     {
                         return NotFound();
                     }
                     else
                     {
-                        throw;
+                        // Thêm lỗi vào ModelState
+                        ModelState.AddModelError("", $"Lỗi khi cập nhật sản phẩm: {ex.Message}");
+                        ViewBag.Categories = new SelectList(await _categoryService.GetAllCategoriesAsync(), "Id", "Name", product.CategoryId);
+                        return View(product);
                     }
                 }
                 return RedirectToAction(nameof(Index));
@@ -231,23 +270,67 @@ namespace CPTStore.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
-            if (product != null)
+            try
             {
-                // Xóa ảnh sản phẩm nếu có
-                if (!string.IsNullOrEmpty(product.ImageUrl))
+                var product = await _productService.GetProductByIdAsync(id);
+                if (product != null)
                 {
-                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, product.ImageUrl.TrimStart('/'));
-                    if (System.IO.File.Exists(imagePath))
+                    // Xóa ảnh sản phẩm nếu có
+                    if (!string.IsNullOrEmpty(product.ImageUrl))
                     {
-                        System.IO.File.Delete(imagePath);
+                        var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, product.ImageUrl.TrimStart('/'));
+                        if (System.IO.File.Exists(imagePath))
+                        {
+                            System.IO.File.Delete(imagePath);
+                        }
                     }
+
+                    await _productService.DeleteProductAsync(id);
                 }
 
-                await _productService.DeleteProductAsync(id);
+                return RedirectToAction(nameof(Index));
             }
-
-            return RedirectToAction(nameof(Index));
+            catch (InvalidOperationException ex)
+            {
+                // Ghi log lỗi
+                Console.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                
+                // Thêm lỗi vào ModelState
+                ModelState.AddModelError("", $"Không thể xóa sản phẩm: {ex.Message}");
+                
+                // Hiển thị lại trang xóa với thông báo lỗi
+                var product = await _productService.GetProductByIdAsync(id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                return View(product);
+            }
+            catch (Exception ex)
+            {
+                // Ghi log lỗi
+                Console.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                
+                // Thêm thông báo lỗi vào ModelState
+                ModelState.AddModelError(string.Empty, $"Không thể xóa sản phẩm: {ex.Message}");
+                
+                // Lấy lại thông tin sản phẩm để hiển thị trang xóa với thông báo lỗi
+                var product = await _productService.GetProductByIdAsync(id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                
+                return View(product);
+            }
         }
         
         // GET: Admin/Products/DeleteAllProducts
