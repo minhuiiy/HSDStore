@@ -50,6 +50,37 @@
                     </form>
                 </div>
             </div>
+            
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Ghi chú:</h6>
+                </div>
+                <div class="card-body">
+                    <p>Phương thức vận chuyển: Standard</p>
+                    
+                    <div class="order-tracking-progress mt-3">
+                        <div class="step @(Model.Order.Status == OrderStatus.Pending || Model.Order.Status == OrderStatus.Processing || Model.Order.Status == OrderStatus.Shipped || Model.Order.Status == OrderStatus.Delivered ? "active" : "")">
+                            <div class="step-icon"><i class="fas fa-clipboard-check"></i></div>
+                            <div class="step-text">Đã đặt hàng</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step @(Model.Order.Status == OrderStatus.Processing || Model.Order.Status == OrderStatus.Shipped || Model.Order.Status == OrderStatus.Delivered ? "active" : "")">
+                            <div class="step-icon"><i class="fas fa-box"></i></div>
+                            <div class="step-text">Đang xử lý</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step @(Model.Order.Status == OrderStatus.Shipped || Model.Order.Status == OrderStatus.Delivered ? "active" : "")">
+                            <div class="step-icon"><i class="fas fa-shipping-fast"></i></div>
+                            <div class="step-text">Đang giao hàng</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step @(Model.Order.Status == OrderStatus.Delivered ? "active" : "")">
+                            <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="step-text">Đã giao hàng</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="col-md-4">
@@ -58,6 +89,10 @@
                     <h6 class="m-0 font-weight-bold text-primary">Thông tin đơn hàng</h6>
                 </div>
                 <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mã đơn hàng:</label>
+                        <p>@Model.Order.OrderNumber</p>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Khách hàng:</label>
                         <p>@Model.Order.CustomerName</p>
